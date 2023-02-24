@@ -6,17 +6,20 @@
    CC BY 4.0
    Licensed under a Creative Commons Attribution 4.0 International license: 
    http://creativecommons.org/licenses/by/4.0/
+
+   Modified to directly call TinywireM and use PIN constants
+   Temperature sensor code removed, just testing the display
 */
 
 #include <Arduino.h>
 #include <TinyWireM.h>
 
 // Pins
-int const sda = 0;
-int const scl = 2;
+int const sda = PIN0;
+int const scl = PIN2;
 
 // Constants
-int const address = 0x3c;
+int const address = 0x3c; // display I2C address
 int const commands = 0x00;
 int const onecommand = 0x80;
 int const data = 0x40;
@@ -253,20 +256,7 @@ void setup() {
 const int Now = 1547;                   // To set the time; eg 15:47
 unsigned long StartMins = (unsigned long)((Now/100)*60 + (Now%100));
 
-void loop() {
-  int x0 = 0; int y0 = 16;
-
-  //MoveTo(x0 + 11, y0 +  4); DrawTo(x0 + 20, y0 + 4);
-  //MoveTo(x0 + 10, y0 +  5); DrawTo(x0 + 21, y0 + 5);
-  //MoveTo(x0 + 9, y0 +  6); DrawTo(x0 + 22, y0 + 6);
-
-  PlotChar(x0, y0, '0');
-  PlotChar(x0 + 8, y0, '1');
-
-  delay(10000);
-}
-
-void loop12 () {
+void loop () {
   unsigned int SampleNo = StartMins/15;
   // Plot temperature graph
   int x1 = 16, y1 = 11;
@@ -297,7 +287,7 @@ void loop12 () {
     while ((unsigned long) ((StartMins + millis()/60000)/15)%96 == SampleNo);
     // Time to take a new reading
     SampleNo = (SampleNo+1)%96;
-    int Temperature = 25;  // In half degrees 
+    int Temperature = 25;  // In half degrees // Just testing the display, no sensor
     PlotPoint(SampleNo+x1, Temperature-10+y1);
   }
 }

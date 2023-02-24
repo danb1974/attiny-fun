@@ -10,6 +10,23 @@ const uint8_t led7seg[101] U8X8_FONT_SECTION("led7seg") =
   "\0\0\0\0\177\277\337\340\340\340\340\340\340\340\340\340\340\340\337\277\376\375\373\7\7\7\7\7\7\7\7\7"
   "\7\7\373\375";
 
+void sprintf_uint8(char *buf, uint8_t number, bool zeroPad = false) {
+  char *ptr = buf;
+  uint8_t divisor = 100;
+
+  while (divisor > 0) {
+    uint8_t digit = number / divisor;
+    if (digit > 0 || zeroPad) {
+      *ptr++ = digit + 0x30;
+    }
+
+    number -= digit * divisor;
+    divisor /= 10;
+  }
+
+  *ptr = 0;
+}
+
 void setup(void) {
   pinMode(PIN1, OUTPUT);
 
