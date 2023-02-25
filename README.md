@@ -1,7 +1,5 @@
 #### I'm a tiny attiny
 
-Nothing is ready yet...
-
 ---
 
 #### 7-segment clock (work in progress)
