@@ -13,18 +13,21 @@
 
 //-----------------------------------------------------------------------------
 
-void blink(unsigned long msec) {
+void blink(unsigned long msec)
+{
   digitalWrite(PIN1, HIGH);
   delay(msec);
   digitalWrite(PIN1, LOW);
   delay(msec);
 }
 
-void slowBlink(void) {
+void slowBlink(void)
+{
   blink(1000);
 }
 
-void fastBlink(void) {
+void fastBlink(void)
+{
   blink(100);
 }
 
@@ -66,10 +69,10 @@ void ClearDisplay()
     {
       Wire.beginTransmission(SH1106_ADDRESS);
       Wire.write(SH1106_DATAS);
+
       for (int i = 0; i < 20; i++)
-      {
         Wire.write(0);
-      }
+
       Wire.endTransmission();
     }
   }
@@ -78,15 +81,15 @@ void ClearDisplay()
 void PlotPoint(int x, int y, bool clear = false)
 {
   Wire.beginTransmission(SH1106_ADDRESS);
-  Single(0x00 + ((x + 2) & 0x0F)); // Column low nibble
-  Single(0x10 + ((x + 2) >> 4));   // Column high nibble
-  Single(0xB0 + (y >> 3));         // Page
-  Single(0xE0);                    // Enter read modify write
+  Single(0x00 + ((x + 2) & 0x0F));  // Column low nibble
+  Single(0x10 + ((x + 2) >> 4));    // Column high nibble
+  Single(0xB0 + (y >> 3));          // Page
+  Single(0xE0);                     // Enter read modify write
   Wire.write(SH1106_DATA);
   Wire.endTransmission();
 
   Wire.requestFrom(SH1106_ADDRESS, 2);
-  Wire.read();                     // Dummy read
+  Wire.read();                      // Dummy read
   int j = Wire.read();
 
   Wire.beginTransmission(SH1106_ADDRESS);
@@ -96,7 +99,7 @@ void PlotPoint(int x, int y, bool clear = false)
     Wire.write(~mask & j);
   else
     Wire.write(mask | j);
-  Single(0xEE);                    // Cancel read modify write
+  Single(0xEE);                     // Cancel read modify write
   Wire.endTransmission();
 }
 
@@ -211,7 +214,8 @@ void DrawDigit(uint8_t x, uint8_t y, uint8_t digit, bool clear = false)
   if (digit > 9)
     return;
 
-  for (uint8_t i = 0; i < 8; i++) {
+  for (uint8_t i = 0; i < 8; i++)
+  {
     uint8_t c = pgm_read_byte(&digit_segments[digit][i]);
     if (c == 0)
       break;
@@ -222,7 +226,8 @@ void DrawDigit(uint8_t x, uint8_t y, uint8_t digit, bool clear = false)
 
 void DrawDot(uint8_t x, uint8_t y, uint8_t size, bool clear = false)
 {
-  for (uint8_t i = 0; i < size; i++) {
+  for (uint8_t i = 0; i < size; i++)
+  {
     MoveTo(x, y + i);
     DrawTo(x + size - 1, y + i, clear);
   }
@@ -232,13 +237,14 @@ void DrawDots(bool clear = false)
 {
   // DrawDot(61, 13, 6, clear);
   // DrawDot(61, 24, 6, clear);
-  DrawDot(61, 14, 4, clear);
-  DrawDot(61, 25, 4, clear);
+  DrawDot(61, 5 + 14, 4, clear);
+  DrawDot(61, 5 + 25, 4, clear);
 }
 
 void DrawDigitPos(uint8_t pos, uint8_t digit, bool clear = false)
 {
-  switch (pos) {
+  switch (pos)
+  {
     case 0:
       DrawDigit(8, 5, digit, clear);
       break;
@@ -254,13 +260,13 @@ void DrawDigitPos(uint8_t pos, uint8_t digit, bool clear = false)
   }
 }
 
-void DrawDigits(uint8_t digit1, uint8_t digit2, uint8_t digit3, uint8_t digit4)
-{
-  DrawDigitPos(0, digit1);
-  DrawDigitPos(1, digit2);
-  DrawDigitPos(2, digit3);
-  DrawDigitPos(3, digit4);
-}
+// void DrawDigits(uint8_t digit1, uint8_t digit2, uint8_t digit3, uint8_t digit4)
+// {
+//   DrawDigitPos(0, digit1);
+//   DrawDigitPos(1, digit2);
+//   DrawDigitPos(2, digit3);
+//   DrawDigitPos(3, digit4);
+// }
 
 //-----------------------------------------------------------------------------
 
@@ -279,14 +285,16 @@ protected:
   uint8_t y, m, d, hh, mm, ss;
 };
 
-static uint8_t conv2d(const char *p) {
+static uint8_t conv2d(const char *p)
+{
   uint8_t v = 0;
   if ('0' <= *p && *p <= '9')
     v = *p - '0';
   return 10 * v + *++p - '0';
 }
 
-DateTime::DateTime(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t min, uint8_t sec) {
+DateTime::DateTime(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t min, uint8_t sec)
+{
   y = year;
   m = month;
   d = day;
@@ -295,36 +303,38 @@ DateTime::DateTime(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint
   ss = sec;
 }
 
-DateTime::DateTime(const char *date, const char *time) {
+DateTime::DateTime(const char *date, const char *time)
+{
   // sample input: date = "Dec 26 2009", time = "12:34:56"
   y = conv2d(date + 7) * 100 + conv2d(date + 9);
   // Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec
   m = 1;
-  switch (date[0]) {
-    case 'J':
-      m = date[1] == 'a' ? 1 : (m = date[2] == 'n' ? 6 : 7);
-      break;
-    case 'F':
-      m = 2;
-      break;
-    case 'A':
-      m = date[2] == 'r' ? 4 : 8;
-      break;
-    case 'M':
-      m = date[2] == 'r' ? 3 : 5;
-      break;
-    case 'S':
-      m = 9;
-      break;
-    case 'O':
-      m = 10;
-      break;
-    case 'N':
-      m = 11;
-      break;
-    case 'D':
-      m = 12;
-      break;
+  switch (date[0])
+  {
+  case 'J':
+    m = date[1] == 'a' ? 1 : (m = date[2] == 'n' ? 6 : 7);
+    break;
+  case 'F':
+    m = 2;
+    break;
+  case 'A':
+    m = date[2] == 'r' ? 4 : 8;
+    break;
+  case 'M':
+    m = date[2] == 'r' ? 3 : 5;
+    break;
+  case 'S':
+    m = 9;
+    break;
+  case 'O':
+    m = 10;
+    break;
+  case 'N':
+    m = 11;
+    break;
+  case 'D':
+    m = 12;
+    break;
   }
   d = conv2d(date + 4);
 
@@ -349,7 +359,8 @@ uint8_t RtcIsRunning()
   return !(ss >> 7);
 }
 
-void RtcAdjust(const DateTime &dt) {
+void RtcAdjust(const DateTime &dt)
+{
   Wire.beginTransmission(DS1307_ADDRESS);
   Wire.write(0);
   Wire.write(bin2bcd(dt.second()));
@@ -363,7 +374,8 @@ void RtcAdjust(const DateTime &dt) {
   Wire.endTransmission();
 }
 
-DateTime RtcNow() {
+DateTime RtcNow()
+{
   Wire.beginTransmission(DS1307_ADDRESS);
   Wire.write(0);
   Wire.endTransmission();
@@ -403,7 +415,7 @@ void setup()
 
 //-----------------------------------------------------------------------------
 
-uint8_t oldDigits[4] = {0, 0, 0, 0};
+uint8_t oldDigits[4] = {0xff, 0xff, 0xff, 0xff};
 uint8_t digits[4];
 bool dots = true;
 
@@ -415,9 +427,13 @@ void loop()
   digits[2] = dt.minute() / 10;
   digits[3] = dt.minute() % 10;
 
-  for (uint8_t i = 0; i < 4; i++) {
-    if (digits[i] != oldDigits[i]) {
-      DrawDigitPos(i, oldDigits[i], true);
+  for (uint8_t i = 0; i < 4; i++)
+  {
+    if (digits[i] != oldDigits[i])
+    {
+      if (oldDigits[i] != 0xff)
+        DrawDigitPos(i, oldDigits[i], true);
+
       DrawDigitPos(i, digits[i], false);
       oldDigits[i] = digits[i];
     }
