@@ -1,6 +1,6 @@
 Example for converting a character range
 ----------------------------------------
-bdfconv.exe -f 2 -m "48-59" -n led7seg -o led7seg.c led7seg.bdf
+bdfconv.exe -f 2 -m "48-88" -n led7seg2 -o led7seg2.c led7seg2.bdf
             \_ uncompressed format
-                 \_ character range
+                 \_ character range ('0' - 'X')
                             \_ font name
