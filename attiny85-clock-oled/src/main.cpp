@@ -1,10 +1,19 @@
 #include <Arduino.h>
 #include <U8x8lib.h>
 #include <U8g2lib.h>
+#include <Wire.h>
 
 //#define DEBUG
 
-U8X8_SH1106_128X64_NONAME_SW_I2C u8x8(PIN2, PIN0, U8X8_PIN_NONE);
+class U8X8_SH1106_128X64_NONAME_SW_I2C_CUSTOM : public U8X8 {
+  public: U8X8_SH1106_128X64_NONAME_SW_I2C_CUSTOM(uint8_t clock, uint8_t data, uint8_t reset = U8X8_PIN_NONE) : U8X8() {
+    u8x8_Setup(getU8x8(), u8x8_d_sh1106_128x64_noname, u8x8_cad_ssd13xx_i2c, u8x8_byte_arduino_sw_i2c, u8x8_gpio_and_delay_arduino);
+    u8x8_SetPin_SW_I2C(getU8x8(), clock,  data,  reset);
+  }
+};
+
+//U8X8_SH1106_128X64_NONAME_SW_I2C u8x8(PIN2, PIN0, U8X8_PIN_NONE);
+U8X8_SH1106_128X64_NONAME_SW_I2C_CUSTOM u8x8(PIN2, PIN0, U8X8_PIN_NONE);
 
 const uint8_t led7seg2[332] U8X8_FONT_SECTION("led7seg2") = 
   "\60X\1\1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\200\200\200\200\0\0\0\0\0\0\0\0\0\0"
@@ -42,7 +51,7 @@ const char PROGMEM map7seg_left[10][6][4] = {
 //   while (divisor > 0) {
 //     uint8_t digit = number / divisor;
 //     if (digit > 0 || zeroPad) {
-//       *ptr++ = digit + 0x30;
+//       *ptr++ = digit + '0';
 //     }
 
 //     number -= digit * divisor;
@@ -129,62 +138,182 @@ void delete_dots(void) {
 
 //-----------------------------------------------------------------------------
 
-uint8_t hour = 0;
-uint8_t minute = 0;
-uint8_t second = 0;
+class DateTime {
+public:
+  DateTime(uint16_t year, uint8_t month, uint8_t day, uint8_t hour = 0, uint8_t min = 0, uint8_t sec = 0);
+  DateTime(const char *date, const char *time);
+  uint16_t year() const { return y; }
+  uint8_t month() const { return m; }
+  uint8_t day() const { return d; }
+  uint8_t hour() const { return hh; }
+  uint8_t minute() const { return mm; }
+  uint8_t second() const { return ss; }
+
+protected:
+  uint8_t y, m, d, hh, mm, ss;
+};
+
+static uint8_t conv2d(const char *p)
+{
+  uint8_t v = 0;
+  if ('0' <= *p && *p <= '9')
+    v = *p - '0';
+  return 10 * v + *++p - '0';
+}
+
+DateTime::DateTime(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t min, uint8_t sec)
+{
+  y = year;
+  m = month;
+  d = day;
+  hh = hour;
+  mm = min;
+  ss = sec;
+}
+
+DateTime::DateTime(const char *date, const char *time)
+{
+  // sample input: date = "Dec 26 2009", time = "12:34:56"
+  y = conv2d(date + 7) * 100 + conv2d(date + 9);
+  // Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec
+  m = 1;
+  switch (date[0])
+  {
+  case 'J':
+    m = date[1] == 'a' ? 1 : (m = date[2] == 'n' ? 6 : 7);
+    break;
+  case 'F':
+    m = 2;
+    break;
+  case 'A':
+    m = date[2] == 'r' ? 4 : 8;
+    break;
+  case 'M':
+    m = date[2] == 'r' ? 3 : 5;
+    break;
+  case 'S':
+    m = 9;
+    break;
+  case 'O':
+    m = 10;
+    break;
+  case 'N':
+    m = 11;
+    break;
+  case 'D':
+    m = 12;
+    break;
+  }
+  d = conv2d(date + 4);
+
+  hh = conv2d(time);
+  mm = conv2d(time + 3);
+  ss = conv2d(time + 6);
+}
+
+static uint8_t bcd2bin(uint8_t val) { return val - 6 * (val >> 4); }
+static uint8_t bin2bcd(uint8_t val) { return val + 6 * (val / 10); }
+
+#define DS1307_ADDRESS 0x68
+
+uint8_t RtcIsRunning()
+{
+  Wire.beginTransmission(DS1307_ADDRESS);
+  Wire.write(0);
+  Wire.endTransmission();
+
+  Wire.requestFrom(DS1307_ADDRESS, 1);
+  uint8_t ss = Wire.read();
+  return !(ss >> 7);
+}
+
+void RtcAdjust(const DateTime &dt)
+{
+  Wire.beginTransmission(DS1307_ADDRESS);
+  Wire.write(0);
+  Wire.write(bin2bcd(dt.second()));
+  Wire.write(bin2bcd(dt.minute()));
+  Wire.write(bin2bcd(dt.hour()));
+  Wire.write(bin2bcd(0));
+  Wire.write(bin2bcd(dt.day()));
+  Wire.write(bin2bcd(dt.month()));
+  Wire.write(bin2bcd(dt.year() - 2000));
+  Wire.write(0);
+  Wire.endTransmission();
+}
+
+DateTime RtcNow()
+{
+  Wire.beginTransmission(DS1307_ADDRESS);
+  Wire.write(0);
+  Wire.endTransmission();
+
+  Wire.requestFrom(DS1307_ADDRESS, 7);
+  uint8_t ss = bcd2bin(Wire.read() & 0x7F);
+  uint8_t mm = bcd2bin(Wire.read());
+  uint8_t hh = bcd2bin(Wire.read());
+  Wire.read();
+  uint8_t d = bcd2bin(Wire.read());
+  uint8_t m = bcd2bin(Wire.read());
+  uint16_t y = bcd2bin(Wire.read()) + 2000;
+
+  return DateTime(y, m, d, hh, mm, ss);
+}
 
 //-----------------------------------------------------------------------------
 
 void setup(void) {
   pinMode(PIN1, OUTPUT);
-
+ 
 #ifndef DEBUG
+  // messes up i2c if after Wire.begin()
   u8x8.begin();
-
   u8x8.setFont(led7seg2);
   u8x8.setContrast(63);
+
+  if (!RtcIsRunning()) {
+    Wire.begin(); // because u8g2
+    slowBlink();
+    RtcAdjust(DateTime(__DATE__, __TIME__));
+  }
 #else
   Serial.begin(9600);
 #endif
-
-  char hhmmss[9] = __TIME__;
-  hour = (hhmmss[0] - '0') * 10 + (hhmmss[1] - '0');
-  minute = (hhmmss[3] - '0') * 10 + (hhmmss[4] - '0');
-  second = (hhmmss[6] - '0') * 10 + (hhmmss[7] - '0');
 
   slowBlink();
 }
 
 //-----------------------------------------------------------------------------
 
-bool refresh = true;
+uint8_t oldDigits[4] = {0xff, 0xff, 0xff, 0xff};
+uint8_t digits[4] = {0, 0, 0, 0};
+bool dots = true;
 
 void loop(void) {
-  if (refresh) {
-    drawDigit(0, hour / 10, DIGIT_RIGHT);
-    drawDigit(1, hour % 10, DIGIT_LEFT);
-    drawDigit(2, minute / 10, DIGIT_RIGHT);
-    drawDigit(3, minute % 10, DIGIT_LEFT);
+#ifndef DEBUG
+  Wire.begin(); // because u8g2
+  DateTime dt = RtcNow();
+  digits[0] = dt.hour() / 10;
+  digits[1] = dt.hour() % 10;
+  digits[2] = dt.minute() / 10;
+  digits[3] = dt.minute() % 10;
+#endif
+
+  for (uint8_t i = 0; i < 4; i++)
+  {
+    if (digits[i] != oldDigits[i])
+    {
+      drawDigit(i, digits[i], i % 2 == 0 ? DIGIT_RIGHT : DIGIT_LEFT);
+      oldDigits[i] = digits[i];
+    }
   }
 
-  if (second % 2) {
+  if (dots) {
     draw_dots();
   } else {
     delete_dots();
   }
-
-  refresh = false;
-  if (second++ > 59) {
-    second = 0;
-    if (minute++ > 59) {
-      minute = 0;
-      if (hour++ > 23) {
-        hour = 0;
-      }
-    }
-
-    refresh = true;
-  }
+  dots = !dots;
 
   delay(1000);
 }
