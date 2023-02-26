@@ -489,8 +489,8 @@ void loop()
     else
       desiredContrast = 15 + (light - 100) / ((10000 - 100) / (127 - 15));
 
-  if (contrast != desiredContrast) {
-    contrast += (contrast < desiredContrast) ? 1 : -1;
+  if (abs(contrast - desiredContrast) > 8) {
+    contrast += (contrast < desiredContrast) ? 8 : -8;
     SetDisplayContrast(contrast);
   }
 
