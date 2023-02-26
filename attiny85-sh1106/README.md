@@ -1,5 +1,9 @@
-This is code from, credits go to:
+SH1106 + DS1307 clock
 
-Tiny Graphics Library v3 - see http://www.technoblogy.com/show?23OS
+Uses code from:
 
+Tiny Graphics Library v3 - see http://www.technoblogy.com/show?23OS<br>
 David Johnson-Davies - www.technoblogy.com - 23rd September 2018
+
+Adafruit TinyRTCLib<br>
+https://github.com/adafruit/RTClib
