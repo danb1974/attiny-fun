@@ -142,6 +142,10 @@ void DrawTo(int x, int y, bool clear = false)
   }
 }
 
+void OledContrast(char contrast) {
+  Single(0x81);
+  Single(contrast);
+}
 //-----------------------------------------------------------------------------
 
 void DrawVerticalSegment(uint8_t x, uint8_t y, bool clear = false)
@@ -308,11 +312,13 @@ DateTime::DateTime(const char *date, const char *time)
   // sample input: date = "Dec 26 2009", time = "12:34:56"
   y = conv2d(date + 7) * 100 + conv2d(date + 9);
   // Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec
-  m = 1;
   switch (date[0])
   {
   case 'J':
-    m = date[1] == 'a' ? 1 : (m = date[2] == 'n' ? 6 : 7);
+    if (date[1] == 'a')
+      m = 1;
+    else 
+      m = date[2] == 'n' ? 6 : 7;
     break;
   case 'F':
     m = 2;
@@ -335,6 +341,9 @@ DateTime::DateTime(const char *date, const char *time)
   case 'D':
     m = 12;
     break;
+  default:
+    // oh no
+    m = 1;
   }
   d = conv2d(date + 4);
 
@@ -394,6 +403,29 @@ DateTime RtcNow()
 
 //-----------------------------------------------------------------------------
 
+#define BH1759_ADDRESS 0x23
+
+void LightInit()
+{
+  Wire.beginTransmission(BH1759_ADDRESS);
+  Wire.write(0x10); // Set mode
+  Wire.endTransmission();
+}
+
+uint16_t LightGetIntensity(void)
+{
+  uint16_t Value = 0;
+
+  Wire.requestFrom(BH1759_ADDRESS, 2);
+  Value = Wire.read();
+  Value <<= 8;
+  Value |= Wire.read();
+
+  return Value / 1.2;
+}
+
+//-----------------------------------------------------------------------------
+
 void setup()
 {
   slowBlink();
@@ -410,6 +442,9 @@ void setup()
   InitDisplay();
   fastBlink();
 
+  LightInit();
+  fastBlink();
+
   slowBlink();
 }
 
@@ -418,6 +453,8 @@ void setup()
 uint8_t oldDigits[4] = {0xff, 0xff, 0xff, 0xff};
 uint8_t digits[4];
 bool dots = true;
+uint8_t desiredContrast = 127;
+uint8_t contrast = 0;
 
 void loop()
 {
@@ -441,6 +478,20 @@ void loop()
 
   DrawDots(dots);
   dots = !dots;
+
+  uint16_t light = LightGetIntensity();
+  if (light < 100)
+    desiredContrast = 15;
+  else
+    if (light > 10000)
+      desiredContrast = 127;
+    else
+      desiredContrast = 15 + (light - 100) / ((10000 - 100) / (127 - 15));
+
+  if (contrast != desiredContrast) {
+    contrast += (contrast < desiredContrast) ? 1 : -1;
+    OledContrast(contrast);
+  }
 
   delay(1000);
 }
