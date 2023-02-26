@@ -142,7 +142,7 @@ void DrawTo(int x, int y, bool clear = false)
   }
 }
 
-void OledContrast(char contrast) {
+void SetDisplayContrast(char contrast) {
   Single(0x81);
   Single(contrast);
 }
@@ -440,6 +440,7 @@ void setup()
 
   ClearDisplay();
   InitDisplay();
+  SetDisplayContrast(127);
   fastBlink();
 
   LightInit();
@@ -454,7 +455,7 @@ uint8_t oldDigits[4] = {0xff, 0xff, 0xff, 0xff};
 uint8_t digits[4];
 bool dots = true;
 uint8_t desiredContrast = 127;
-uint8_t contrast = 0;
+uint8_t contrast = 127;
 
 void loop()
 {
@@ -490,7 +491,7 @@ void loop()
 
   if (contrast != desiredContrast) {
     contrast += (contrast < desiredContrast) ? 1 : -1;
-    OledContrast(contrast);
+    SetDisplayContrast(contrast);
   }
 
   delay(1000);
