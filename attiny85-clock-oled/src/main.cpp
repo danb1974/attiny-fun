@@ -6,8 +6,8 @@
 
 U8X8_SH1106_128X64_NONAME_SW_I2C u8x8(PIN2, PIN0, U8X8_PIN_NONE);
 
-const uint8_t PROGMEM led7seg2[348] U8X8_FONT_SECTION("led7seg2") = 
-  "\60Z\1\1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\200\200\200\200\0\0\0\0\0\0\0\0\0\0"
+const uint8_t led7seg2[332] U8X8_FONT_SECTION("led7seg2") = 
+  "\60X\1\1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\200\200\200\200\0\0\0\0\0\0\0\0\0\0"
   "\0\0\7\7\7\7\0\0\0\0\0\0\0\0\0\0\0\0\340\340\340\340\0\0\0\0\0\0\0\0\0\0"
   "\0\0\1\1\1\1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
   "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
@@ -17,7 +17,7 @@ const uint8_t PROGMEM led7seg2[348] U8X8_FONT_SECTION("led7seg2") =
   "\177\177\277\337\340\340\337\277\177\177\77\37\0\0\0\0\200\300\340\340\340\340\340\340\340\340\340\340\300\200\0\0"
   "\0\0\0\0\0\0\0\0\1\3\7\7\7\7\7\7\7\7\7\7\3\1\0\0\0\0\0\0\370\374\376\376"
   "\374\370\0\0\37\77\177\177\77\37\0\0\370\374\376\376\375\373\7\7\373\375\376\376\374\370\0\0\37\77\177\177"
-  "\277\337\340\340\337\277\177\177\77\37\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
+  "\277\337\340\340\337\277\177\177\77\37\0";
 
 const char PROGMEM map7seg_left[10][6][4] = {
   { /* 0 */ "ABC", "IEJ", "H0H", "G0G", "KBL", "DEF" },
@@ -84,21 +84,21 @@ void drawDigit(uint8_t pos, uint8_t digit, uint8_t side) {
   char val[4];
   for (uint8_t line = 0; line < 6; line++) {
     // copy digit from progmem
-    for (uint8_t i = 0; i < sizeof(val); i++) {
+    for (uint8_t i = 0; i < sizeof(val) - 1; i++) {
       val[i] = pgm_read_byte_near(&map7seg_left[digit][line][i]);
     }
-    val[sizeof(val)] = 0;
+    val[sizeof(val) - 1] = 0;
+
+    if (strlen(val) == 0) {
+      continue;
+    }
 
     if (side == DIGIT_RIGHT) {
       for (uint8_t i = 0; i < strlen(val); i++) {
         val[i] = val[i] + 12;
       }
     } 
-  
-    if (strlen(val) == 0) {
-      continue;
-    }
-    
+      
 #ifndef DEBUG
     u8x8.drawString(col, row + line, val);
 #else
