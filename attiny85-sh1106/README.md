@@ -1,4 +1,4 @@
-SH1106 + DS1307 clock
+#### SH1106 + DS1307 clock
 
 Uses code from:
 
