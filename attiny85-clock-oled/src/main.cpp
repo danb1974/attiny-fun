@@ -1,3 +1,5 @@
+#define U8X8_DO_NOT_SET_WIRE_CLOCK
+
 #include <Arduino.h>
 #include <U8x8lib.h>
 #include <U8g2lib.h>
@@ -271,8 +273,8 @@ void setup(void) {
   u8x8.setFont(led7seg2);
   u8x8.setContrast(63);
 
+  Wire.begin(); // because u8g2
   if (!RtcIsRunning()) {
-    Wire.begin(); // because u8g2
     slowBlink();
     RtcAdjust(DateTime(__DATE__, __TIME__));
   }
