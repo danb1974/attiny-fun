@@ -508,8 +508,10 @@ void loop()
   if (contrast > MAXCONTRAST)
     contrast = MAXCONTRAST;
 
-  if (abs(contrast - desiredContrast) > 8) {
-    contrast += (contrast < desiredContrast) ? 2 : -2;
+  uint8_t diff = abs(contrast - desiredContrast);
+  if (diff > 8) {
+    uint8_t step = max(diff / 32, 4);
+    contrast += (contrast < desiredContrast) ? step : -step;
     SetDisplayContrast(contrast);
   }
 
