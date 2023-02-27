@@ -11,6 +11,11 @@
 #include <Arduino.h>
 #include <Wire.h>
 
+#define MINLUX 40
+#define MAXLUX 400 
+#define MINCONTRAST 15
+#define MAXCONTRAST 127
+
 //-----------------------------------------------------------------------------
 
 void blink(unsigned long msec)
@@ -142,9 +147,13 @@ void DrawTo(int x, int y, bool clear = false)
   }
 }
 
-void SetDisplayContrast(char contrast) {
-  Single(0x81);
-  Single(contrast);
+void SetDisplayContrast(uint8_t contrast) {
+  Wire.beginTransmission(SH1106_ADDRESS);
+  Wire.write(SH1106_COMMANDS);
+  Wire.write(0x81);
+  Wire.write(contrast);
+  Wire.endTransmission();
+
 }
 //-----------------------------------------------------------------------------
 
@@ -440,7 +449,7 @@ void setup()
 
   ClearDisplay();
   InitDisplay();
-  SetDisplayContrast(127);
+  SetDisplayContrast(MINCONTRAST);
   fastBlink();
 
   LightInit();
@@ -452,10 +461,11 @@ void setup()
 //-----------------------------------------------------------------------------
 
 uint8_t oldDigits[4] = {0xff, 0xff, 0xff, 0xff};
-uint8_t digits[4];
+uint8_t digits[4] = {0, 0, 0, 0};
 bool dots = true;
-uint8_t desiredContrast = 127;
-uint8_t contrast = 127;
+
+uint8_t desiredContrast = MINCONTRAST;
+uint8_t contrast = MINCONTRAST;
 
 void loop()
 {
@@ -481,16 +491,22 @@ void loop()
   dots = !dots;
 
   uint16_t light = LightGetIntensity();
-  if (light < 100)
-    desiredContrast = 15;
-  else
-    if (light > 10000)
-      desiredContrast = 127;
-    else
-      desiredContrast = 15 + (light - 100) / ((10000 - 100) / (127 - 15));
+  if (light < MINLUX) {
+    desiredContrast = MINCONTRAST;
+  } else if (light > MAXLUX) {
+    desiredContrast = MAXCONTRAST;
+  } else {
+    desiredContrast = MINCONTRAST + (light - MINLUX) / ((MAXLUX - MINLUX) / (MAXCONTRAST - MINCONTRAST));
+  }
+      
+  // just to be sure
+  if (contrast < MINCONTRAST)
+    contrast = MINCONTRAST;
+  if (contrast > MAXCONTRAST)
+    contrast = MAXCONTRAST;
 
   if (abs(contrast - desiredContrast) > 8) {
-    contrast += (contrast < desiredContrast) ? 8 : -8;
+    contrast += (contrast < desiredContrast) ? 2 : -2;
     SetDisplayContrast(contrast);
   }
 
