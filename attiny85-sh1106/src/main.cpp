@@ -6,6 +6,9 @@
 
   Adafruit TinyRTCLib
   https://github.com/adafruit/RTClib
+  
+  BH1750 library
+  https://github.com/PeterEmbedded/BH1750FVI
 */
 
 #include <Arduino.h>
