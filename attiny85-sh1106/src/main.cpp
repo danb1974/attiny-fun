@@ -251,9 +251,12 @@ void DrawDot(uint8_t x, uint8_t y, uint8_t size, bool clear = false)
 
 void DrawDots(bool clear = false)
 {
-  // DrawDot(61, 13, 6, clear);
+  // 6x6
+  // DrawDot(61, 8, 6, clear);
   // DrawDot(61, 24, 6, clear);
-  DrawDot(61, 5 + 14, 4, clear);
+
+  // 4x4
+  DrawDot(61, 5 + 9, 4, clear);
   DrawDot(61, 5 + 25, 4, clear);
 }
 
@@ -440,6 +443,7 @@ uint16_t LightGetIntensity(void)
 
 void setup()
 {
+  pinMode(PIN1, OUTPUT);
   slowBlink();
 
   Wire.begin();
