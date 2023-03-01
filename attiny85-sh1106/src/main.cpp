@@ -14,9 +14,9 @@
 #include <Arduino.h>
 #include <Wire.h>
 
-#define MINLUX 40
-#define MAXLUX 400 
-#define MINCONTRAST 15
+#define MINLUX 10
+#define MAXLUX 200
+#define MINCONTRAST 1
 #define MAXCONTRAST 127
 
 //-----------------------------------------------------------------------------
@@ -37,6 +37,10 @@ void slowBlink(void)
 void fastBlink(void)
 {
   blink(100);
+}
+
+void veryFastBlink() {
+  blink(10);
 }
 
 //-----------------------------------------------------------------------------
@@ -262,19 +266,28 @@ void DrawDots(bool clear = false)
 
 void DrawDigitPos(uint8_t pos, uint8_t digit, bool clear = false)
 {
+  const uint8_t firstPos = 8;
+  const uint8_t secondPos = 34;
+  const uint8_t thirdPos = 72;
+  const uint8_t fourthPos = 98;
+  // const uint8_t firstPos = 4;
+  // const uint8_t secondPos = 30;
+  // const uint8_t thirdPos = 76;
+  // const uint8_t fourthPos = 102;
+
   switch (pos)
   {
     case 0:
-      DrawDigit(8, 5, digit, clear);
+      DrawDigit(firstPos, 5, digit, clear);
       break;
     case 1:
-      DrawDigit(34, 5, digit, clear);
+      DrawDigit(secondPos, 5, digit, clear);
       break;
     case 2:
-      DrawDigit(64 + 8, 5, digit, clear);
+      DrawDigit(thirdPos, 5, digit, clear);
       break;
     case 3:
-      DrawDigit(64 + 34, 5, digit, clear);
+      DrawDigit(fourthPos, 5, digit, clear);
       break;
   }
 }
@@ -517,6 +530,7 @@ void loop()
     uint8_t step = max(diff / 32, 4);
     contrast += (contrast < desiredContrast) ? step : -step;
     SetDisplayContrast(contrast);
+    veryFastBlink();
   }
 
   delay(1000);
