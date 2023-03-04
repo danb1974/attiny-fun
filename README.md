@@ -1,5 +1,9 @@
 #### I'm a tiny attiny
 
+Lying in a drawer
+
+Waiting for my day to come
+
 ---
 
 #### 7-segment clock (work in progress)
