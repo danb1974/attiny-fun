@@ -14,9 +14,18 @@
 #include <Arduino.h>
 #include <Wire.h>
 
-#define MINLUX 10
-#define MAXLUX 200
-#define MINCONTRAST 1
+// do not set MINLUX to 0 !!!
+
+// sensor exposed
+// #define MINLUX 10
+// #define MAXLUX 400
+// #define MINCONTRAST 1
+// #define MAXCONTRAST 127
+
+// sensor in box, tiny hole
+#define MINLUX 1
+#define MAXLUX 30
+#define MINCONTRAST 3
 #define MAXCONTRAST 127
 
 //-----------------------------------------------------------------------------
@@ -489,11 +498,26 @@ uint8_t contrast = MINCONTRAST;
 
 void loop()
 {
-  DateTime dt = RtcNow();
-  digits[0] = dt.hour() / 10;
-  digits[1] = dt.hour() % 10;
-  digits[2] = dt.minute() / 10;
-  digits[3] = dt.minute() % 10;
+  uint16_t light = LightGetIntensity();
+  DateTime now = RtcNow();
+
+  digits[0] = now.hour() / 10;
+  digits[1] = now.hour() % 10;
+  digits[2] = now.minute() / 10;
+  digits[3] = now.minute() % 10;
+
+  // debug show light
+  // if (light > 9999) {
+  //   digits[0] = '9';
+  //   digits[1] = '9';
+  //   digits[2] = '9';
+  //   digits[3] = '9';
+  // } else {
+  //   digits[0] = light / 1000; light %= 1000;
+  //   digits[1] = light / 100; light %= 100;
+  //   digits[2] = light / 10; light %= 10;
+  //   digits[3] = light;
+  // }
 
   for (uint8_t i = 0; i < 4; i++)
   {
@@ -510,13 +534,13 @@ void loop()
   DrawDots(dots);
   dots = !dots;
 
-  uint16_t light = LightGetIntensity();
   if (light < MINLUX) {
     desiredContrast = MINCONTRAST;
   } else if (light > MAXLUX) {
     desiredContrast = MAXCONTRAST;
   } else {
-    desiredContrast = MINCONTRAST + (light - MINLUX) / ((MAXLUX - MINLUX) / (MAXCONTRAST - MINCONTRAST));
+    uint16_t offset = (light - MINLUX) * (MAXCONTRAST - MINCONTRAST) / (MAXLUX - MINLUX);
+    desiredContrast = MINCONTRAST + offset;
   }
       
   // just to be sure
