@@ -24,9 +24,9 @@
 
 // sensor in box, tiny hole
 #define MINLUX 1
-#define MAXLUX 30
-#define MINCONTRAST 3
-#define MAXCONTRAST 127
+#define MAXLUX 100
+#define MINCONTRAST 7
+#define MAXCONTRAST 255
 
 //-----------------------------------------------------------------------------
 
@@ -550,8 +550,8 @@ void loop()
     contrast = MAXCONTRAST;
 
   uint8_t diff = abs(contrast - desiredContrast);
-  if (diff > 8) {
-    uint8_t step = max(diff / 32, 4);
+  if (diff > 2) {
+    uint8_t step = max(diff / 32, 2);
     contrast += (contrast < desiredContrast) ? step : -step;
     SetDisplayContrast(contrast);
     veryFastBlink();
