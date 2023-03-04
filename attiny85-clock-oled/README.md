@@ -12,4 +12,4 @@ Because we need the dots between hour and minute digits, we cannot use the same 
 
 One corrupted attiny and ISP reflash later, we learn that due to the tiny amount of ram we have to store data in progmem, and we're good to demo a "clock" that is not a real clock. Yet.
 
-TODO: get a rtc module involved
+Unfortunately we are almost out of memory and u8x8 uses it's own wire, so we hack something together then abandon this route...
