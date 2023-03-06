@@ -60,8 +60,8 @@ void veryFastBlink() {
 #define SH1106_COMMANDS 0x00
 #define SH1106_DATAS 0x40
 
-int SH1106_xpos;
-int SH1106_ypos;
+uint8_t SH1106_xpos;
+uint8_t SH1106_ypos;
 
 void Single(uint8_t data)
 {
@@ -73,28 +73,28 @@ void InitDisplay()
 {
   Wire.beginTransmission(SH1106_ADDRESS);
   Wire.write(SH1106_COMMANDS);
-  Wire.write(0xA1); // Flip horizontal
-  Wire.write(0xAF); // Display on
+  Wire.write(0xA0 | 1); // Flip horizontal
+  Wire.write(0xAE | 1); // Display on
   Wire.endTransmission();
 }
 
 void ClearDisplay()
 {
-  for (int p = 0; p < 8; p++)
+  for (uint8_t p = 0; p < 8; p++)
   {
     Wire.beginTransmission(SH1106_ADDRESS);
-    Single(0x00 + 2); // Column low nibble
-    Single(0x10 + 0); // Column high nibble
-    Single(0xB0 + p); // Page
+    Single(0x00 | 2); // Column low nibble
+    Single(0x10 | 0); // Column high nibble
+    Single(0xB0 | p); // Page
     Wire.endTransmission();
 
     // send 128 zeros in batches (column autoincrements with each write)
-    for (int q = 0; q < 16; q++)
+    for (uint8_t q = 0; q < 16; q++)
     {
       Wire.beginTransmission(SH1106_ADDRESS);
       Wire.write(SH1106_DATAS);
 
-      for (int i = 0; i < 8; i++)
+      for (uint8_t i = 0; i < 8; i++)
         Wire.write(0);
 
       Wire.endTransmission();
@@ -102,21 +102,21 @@ void ClearDisplay()
   }
 }
 
-void PlotPoint(int x, int y, bool clear = false)
+void PlotPoint(uint8_t x, uint8_t y, bool clear = false)
 {
   x += 2;
 
   Wire.beginTransmission(SH1106_ADDRESS);
-  Single(0x00 + (x & 0x0F));        // Column low nibble
-  Single(0x10 + (x >> 4));          // Column high nibble
-  Single(0xB0 + (y >> 3));          // Page
+  Single(0x00 | (x & 0x0F));        // Column low nibble
+  Single(0x10 | (x >> 4));          // Column high nibble
+  Single(0xB0 | (y >> 3));          // Page
   Single(0xE0);                     // Enter read modify write
   Wire.write(SH1106_DATA);
   Wire.endTransmission();
 
   Wire.requestFrom(SH1106_ADDRESS, 2);
   Wire.read();                      // Dummy read
-  int j = Wire.read();
+  uint8_t j = Wire.read();
 
   Wire.beginTransmission(SH1106_ADDRESS);
   Wire.write(SH1106_DATA);
@@ -129,13 +129,13 @@ void PlotPoint(int x, int y, bool clear = false)
   Wire.endTransmission();
 }
 
-void MoveTo(int x, int y)
+void MoveTo(uint8_t x, uint8_t y)
 {
   SH1106_xpos = x;
   SH1106_ypos = y;
 }
 
-void DrawTo(int x, int y, bool clear = false)
+void DrawTo(uint8_t x, uint8_t y, bool clear = false)
 {
   int sx, sy, e2, err;
 
