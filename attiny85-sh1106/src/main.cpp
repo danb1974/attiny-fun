@@ -83,15 +83,18 @@ void ClearDisplay()
   for (int p = 0; p < 8; p++)
   {
     Wire.beginTransmission(SH1106_ADDRESS);
-    Single(0xB0 + p);
+    Single(0x00 + 2); // Column low nibble
+    Single(0x10 + 0); // Column high nibble
+    Single(0xB0 + p); // Page
     Wire.endTransmission();
 
-    for (int q = 0; q < 8; q++)
+    // send 128 zeros in batches (column autoincrements with each write)
+    for (int q = 0; q < 16; q++)
     {
       Wire.beginTransmission(SH1106_ADDRESS);
       Wire.write(SH1106_DATAS);
 
-      for (int i = 0; i < 20; i++)
+      for (int i = 0; i < 8; i++)
         Wire.write(0);
 
       Wire.endTransmission();
@@ -101,9 +104,11 @@ void ClearDisplay()
 
 void PlotPoint(int x, int y, bool clear = false)
 {
+  x += 2;
+
   Wire.beginTransmission(SH1106_ADDRESS);
-  Single(0x00 + ((x + 2) & 0x0F));  // Column low nibble
-  Single(0x10 + ((x + 2) >> 4));    // Column high nibble
+  Single(0x00 + (x & 0x0F));        // Column low nibble
+  Single(0x10 + (x >> 4));          // Column high nibble
   Single(0xB0 + (y >> 3));          // Page
   Single(0xE0);                     // Enter read modify write
   Wire.write(SH1106_DATA);
