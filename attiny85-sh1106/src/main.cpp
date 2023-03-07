@@ -24,8 +24,8 @@
 
 // sensor in box, tiny hole
 #define MINLUX 1
-#define MAXLUX 100
-#define MINCONTRAST 7
+#define MAXLUX 50
+#define MINCONTRAST 3
 #define MAXCONTRAST 255
 
 //-----------------------------------------------------------------------------
@@ -63,7 +63,7 @@ void veryFastBlink() {
 uint8_t SH1106_xpos;
 uint8_t SH1106_ypos;
 
-void Single(uint8_t data)
+void SingleDisplayCommand(uint8_t data)
 {
   Wire.write(SH1106_COMMAND);
   Wire.write(data);
@@ -78,14 +78,14 @@ void InitDisplay()
   Wire.endTransmission();
 }
 
-void ClearDisplay()
+void ClearDisplay(uint8_t fill = 0x0)
 {
   for (uint8_t p = 0; p < 8; p++)
   {
     Wire.beginTransmission(SH1106_ADDRESS);
-    Single(0x00 | 2); // Column low nibble
-    Single(0x10 | 0); // Column high nibble
-    Single(0xB0 | p); // Page
+    SingleDisplayCommand(0x00 | 2); // Column low nibble
+    SingleDisplayCommand(0x10 | 0); // Column high nibble
+    SingleDisplayCommand(0xB0 | p); // Page
     Wire.endTransmission();
 
     // send 128 zeros in batches (column autoincrements with each write)
@@ -95,7 +95,7 @@ void ClearDisplay()
       Wire.write(SH1106_DATAS);
 
       for (uint8_t i = 0; i < 8; i++)
-        Wire.write(0);
+        Wire.write(fill);
 
       Wire.endTransmission();
     }
@@ -107,10 +107,10 @@ void PlotPoint(uint8_t x, uint8_t y, bool clear = false)
   x += 2;
 
   Wire.beginTransmission(SH1106_ADDRESS);
-  Single(0x00 | (x & 0x0F));        // Column low nibble
-  Single(0x10 | (x >> 4));          // Column high nibble
-  Single(0xB0 | (y >> 3));          // Page
-  Single(0xE0);                     // Enter read modify write
+  SingleDisplayCommand(0x00 | (x & 0x0F));        // Column low nibble
+  SingleDisplayCommand(0x10 | (x >> 4));          // Column high nibble
+  SingleDisplayCommand(0xB0 | (y >> 3));          // Page
+  SingleDisplayCommand(0xE0);                     // Enter read modify write
   Wire.write(SH1106_DATA);
   Wire.endTransmission();
 
@@ -125,45 +125,39 @@ void PlotPoint(uint8_t x, uint8_t y, bool clear = false)
     Wire.write(~mask & j);
   else
     Wire.write(mask | j);
-  Single(0xEE);                     // Cancel read modify write
+  SingleDisplayCommand(0xEE);                     // Cancel read modify write
   Wire.endTransmission();
 }
 
-void MoveTo(uint8_t x, uint8_t y)
-{
-  SH1106_xpos = x;
-  SH1106_ypos = y;
-}
-
-void DrawTo(uint8_t x, uint8_t y, bool clear = false)
+void DrawLine(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, bool clear = false)
 {
   int sx, sy, e2, err;
 
-  int dx = abs(x - SH1106_xpos);
-  int dy = abs(y - SH1106_ypos);
+  int dx = abs(x2 - x1);
+  int dy = abs(y2 - y1);
 
-  sx = (SH1106_xpos < x) ? 1 : -1;
-  sy = (SH1106_ypos < y) ? 1 : -1;
+  sx = (x1 < x2) ? 1 : -1;
+  sy = (y1 < y2) ? 1 : -1;
 
   err = dx - dy;
   for (;;)
   {
-    PlotPoint(SH1106_xpos, SH1106_ypos, clear);
+    PlotPoint(x1, y1, clear);
 
-    if (SH1106_xpos == x && SH1106_ypos == y)
+    if (x1 == x2 && y1 == y2)
       return;
 
     e2 = err << 1;
 
     if (e2 > -dy)
     {
-      err = err - dy;
-      SH1106_xpos = SH1106_xpos + sx;
+      err -= dy;
+      x1 += sx;
     }
     else if (e2 < dx)
     {
-      err = err + dx;
-      SH1106_ypos = SH1106_ypos + sy;
+      err += dx;
+      y1 += sy;
     }
   }
 }
@@ -180,22 +174,22 @@ void SetDisplayContrast(uint8_t contrast) {
 
 void DrawVerticalSegment(uint8_t x, uint8_t y, bool clear = false)
 {
-  MoveTo(x + 0, y + 2); DrawTo(x + 0, y + 11, clear);
-  MoveTo(x + 1, y + 1); DrawTo(x + 1, y + 12, clear);
-  MoveTo(x + 2, y + 0); DrawTo(x + 2, y + 13, clear);
-  MoveTo(x + 3, y + 0); DrawTo(x + 3, y + 13, clear);
-  MoveTo(x + 4, y + 1); DrawTo(x + 4, y + 12, clear);
-  MoveTo(x + 5, y + 2); DrawTo(x + 5, y + 11, clear);
+  DrawLine(x + 0, y + 2, x + 0, y + 11, clear);
+  DrawLine(x + 1, y + 1, x + 1, y + 12, clear);
+  DrawLine(x + 2, y + 0, x + 2, y + 13, clear);
+  DrawLine(x + 3, y + 0, x + 3, y + 13, clear);
+  DrawLine(x + 4, y + 1, x + 4, y + 12, clear);
+  DrawLine(x + 5, y + 2, x + 5, y + 11, clear);
 }
 
 void DrawHorizontalSegment(uint8_t x, uint8_t y, bool clear = false)
 {
-  MoveTo(x + 2, y + 0); DrawTo(x + 11, y + 0, clear);
-  MoveTo(x + 1, y + 1); DrawTo(x + 12, y + 1, clear);
-  MoveTo(x + 0, y + 2); DrawTo(x + 13, y + 2, clear);
-  MoveTo(x + 0, y + 3); DrawTo(x + 13, y + 3, clear);
-  MoveTo(x + 1, y + 4); DrawTo(x + 12, y + 4, clear);
-  MoveTo(x + 2, y + 5); DrawTo(x + 11, y + 5, clear);
+  DrawLine(x + 2, y + 0, x + 11, y + 0, clear);
+  DrawLine(x + 1, y + 1, x + 12, y + 1, clear);
+  DrawLine(x + 0, y + 2, x + 13, y + 2, clear);
+  DrawLine(x + 0, y + 3, x + 13, y + 3, clear);
+  DrawLine(x + 1, y + 4, x + 12, y + 4, clear);
+  DrawLine(x + 2, y + 5, x + 11, y + 5, clear);
 }
 
 // orientation, x, y
@@ -261,10 +255,7 @@ void DrawDigit(uint8_t x, uint8_t y, uint8_t digit, bool clear = false)
 void DrawDot(uint8_t x, uint8_t y, uint8_t size, bool clear = false)
 {
   for (uint8_t i = 0; i < size; i++)
-  {
-    MoveTo(x, y + i);
-    DrawTo(x + size - 1, y + i, clear);
-  }
+    DrawLine(x, y + i, x + size - 1, y + i, clear);
 }
 
 void DrawDots(bool clear = false)
@@ -284,10 +275,6 @@ void DrawDigitPos(uint8_t pos, uint8_t digit, bool clear = false)
   const uint8_t secondPos = 34;
   const uint8_t thirdPos = 72;
   const uint8_t fourthPos = 98;
-  // const uint8_t firstPos = 4;
-  // const uint8_t secondPos = 30;
-  // const uint8_t thirdPos = 76;
-  // const uint8_t fourthPos = 102;
 
   switch (pos)
   {
@@ -490,6 +477,14 @@ void setup()
   fastBlink();
 
   slowBlink();
+
+  // test patterns
+  uint8_t testPatters[] = {0xff, 0xf0, 0x0f};
+  for (uint8_t i = 0; i < sizeof(testPatters); i++) {
+    ClearDisplay(testPatters[i]);
+    delay(1000);
+  }
+  ClearDisplay();
 }
 
 //-----------------------------------------------------------------------------
