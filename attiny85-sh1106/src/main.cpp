@@ -63,13 +63,13 @@ void veryFastBlink() {
 uint8_t SH1106_xpos;
 uint8_t SH1106_ypos;
 
-void SingleDisplayCommand(uint8_t data)
+void DisplaySingleCommand(uint8_t data)
 {
   Wire.write(SH1106_COMMAND);
   Wire.write(data);
 }
 
-void InitDisplay()
+void DisplayInit()
 {
   Wire.beginTransmission(SH1106_ADDRESS);
   Wire.write(SH1106_COMMANDS);
@@ -78,14 +78,14 @@ void InitDisplay()
   Wire.endTransmission();
 }
 
-void ClearDisplay(uint8_t fill = 0x0)
+void DisplayClear(uint8_t fill = 0x0)
 {
   for (uint8_t p = 0; p < 8; p++)
   {
     Wire.beginTransmission(SH1106_ADDRESS);
-    SingleDisplayCommand(0x00 | 2); // Column low nibble
-    SingleDisplayCommand(0x10 | 0); // Column high nibble
-    SingleDisplayCommand(0xB0 | p); // Page
+    DisplaySingleCommand(0x00 | 2); // Column low nibble
+    DisplaySingleCommand(0x10 | 0); // Column high nibble
+    DisplaySingleCommand(0xB0 | p); // Page
     Wire.endTransmission();
 
     // send 128 zeros in batches (column autoincrements with each write)
@@ -102,15 +102,15 @@ void ClearDisplay(uint8_t fill = 0x0)
   }
 }
 
-void PlotDisplayPoint(uint8_t x, uint8_t y, bool clear = false)
+void DisplayPlotPoint(uint8_t x, uint8_t y, bool clear = false)
 {
   x += 2;
 
   Wire.beginTransmission(SH1106_ADDRESS);
-  SingleDisplayCommand(0x00 | (x & 0x0F));        // Column low nibble
-  SingleDisplayCommand(0x10 | (x >> 4));          // Column high nibble
-  SingleDisplayCommand(0xB0 | (y >> 3));          // Page
-  SingleDisplayCommand(0xE0);                     // Enter read modify write
+  DisplaySingleCommand(0x00 | (x & 0x0F));        // Column low nibble
+  DisplaySingleCommand(0x10 | (x >> 4));          // Column high nibble
+  DisplaySingleCommand(0xB0 | (y >> 3));          // Page
+  DisplaySingleCommand(0xE0);                     // Enter read modify write
   Wire.write(SH1106_DATA);
   Wire.endTransmission();
 
@@ -125,11 +125,11 @@ void PlotDisplayPoint(uint8_t x, uint8_t y, bool clear = false)
     Wire.write(~mask & j);
   else
     Wire.write(mask | j);
-  SingleDisplayCommand(0xEE);                     // Cancel read modify write
+  DisplaySingleCommand(0xEE);                     // Cancel read modify write
   Wire.endTransmission();
 }
 
-void DrawDisplayLine(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, bool clear = false)
+void DisplayDrawLine(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, bool clear = false)
 {
   int sx, sy, e2, err;
 
@@ -142,7 +142,7 @@ void DrawDisplayLine(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, bool clear 
   err = dx - dy;
   for (;;)
   {
-    PlotDisplayPoint(x1, y1, clear);
+    DisplayPlotPoint(x1, y1, clear);
 
     if (x1 == x2 && y1 == y2)
       return;
@@ -162,7 +162,7 @@ void DrawDisplayLine(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, bool clear 
   }
 }
 
-void SetDisplayContrast(uint8_t contrast) {
+void DisplaySetContrast(uint8_t contrast) {
   Wire.beginTransmission(SH1106_ADDRESS);
   Wire.write(SH1106_COMMANDS);
   Wire.write(0x81);
@@ -170,6 +170,7 @@ void SetDisplayContrast(uint8_t contrast) {
   Wire.endTransmission();
 
 }
+
 //-----------------------------------------------------------------------------
 
 void DrawVerticalSegment(uint8_t x, uint8_t y, bool clear = false)
@@ -184,7 +185,7 @@ void DrawVerticalSegment(uint8_t x, uint8_t y, bool clear = false)
   };
 
   for (uint8_t i = 0; i < 6; i++)
-    DrawDisplayLine(x + i, lines[i][0], x + i, lines[i][1], clear);
+    DisplayDrawLine(x + i, lines[i][0], x + i, lines[i][1], clear);
 }
 
 void DrawHorizontalSegment(uint8_t x, uint8_t y, bool clear = false)
@@ -199,11 +200,11 @@ void DrawHorizontalSegment(uint8_t x, uint8_t y, bool clear = false)
   };
 
   for (uint8_t i = 0; i < 6; i++)
-    DrawDisplayLine(lines[i][0], y + i, lines[i][1], y + i, clear);
+    DisplayDrawLine(lines[i][0], y + i, lines[i][1], y + i, clear);
 }
 
 // orientation, x, y
-const uint8_t PROGMEM segment_offsets[7][3] = {
+const uint8_t segment_offsets[7][3] PROGMEM = {
   { 0, 4,  32 },
   { 1, 16, 20 },
   { 1, 16, 4  },
@@ -213,8 +214,9 @@ const uint8_t PROGMEM segment_offsets[7][3] = {
   { 0, 4,  16 }
 };
 
-void DrawSegment(uint8_t x, uint8_t y, uint8_t segment, bool clear= false)
+void DrawSegment(uint8_t x, uint8_t y, uint8_t segment, bool clear = false)
 {
+  // support both letters and integers
   if (segment >= 'a' && segment <= 'g')
    segment -= 'a';
 
@@ -231,7 +233,7 @@ void DrawSegment(uint8_t x, uint8_t y, uint8_t segment, bool clear= false)
     DrawVerticalSegment(x + ox, y + oy, clear);
 }
 
-const uint8_t PROGMEM digit_segments[10][8] = {
+const uint8_t digit_segments[10][8] PROGMEM = {
   "abcdef",
   "bc",
   "abged",
@@ -265,7 +267,7 @@ void DrawDigit(uint8_t x, uint8_t y, uint8_t digit, bool clear = false)
 void DrawDot(uint8_t x, uint8_t y, uint8_t size, bool clear = false)
 {
   for (uint8_t i = 0; i < size; i++)
-    DrawDisplayLine(x, y + i, x + size - 1, y + i, clear);
+    DisplayDrawLine(x, y + i, x + size - 1, y + i, clear);
 }
 
 void DrawDots(bool clear = false)
@@ -281,26 +283,13 @@ void DrawDots(bool clear = false)
 
 void DrawDigitPos(uint8_t pos, uint8_t digit, bool clear = false)
 {
-  const uint8_t firstPos = 8;
-  const uint8_t secondPos = 34;
-  const uint8_t thirdPos = 72;
-  const uint8_t fourthPos = 98;
+  const uint8_t digitXPos[] = {8,  34, 72, 98};
+  const uint8_t digitYPos[] = {5,  5,  5,  5};
 
-  switch (pos)
-  {
-    case 0:
-      DrawDigit(firstPos, 5, digit, clear);
-      break;
-    case 1:
-      DrawDigit(secondPos, 5, digit, clear);
-      break;
-    case 2:
-      DrawDigit(thirdPos, 5, digit, clear);
-      break;
-    case 3:
-      DrawDigit(fourthPos, 5, digit, clear);
-      break;
-  }
+  if (pos > 3)
+    pos = 3;
+
+  DrawDigit(digitXPos[pos], digitYPos[pos], digit, clear);
 }
 
 // void DrawDigits(uint8_t digit1, uint8_t digit2, uint8_t digit3, uint8_t digit4)
@@ -478,9 +467,9 @@ void setup()
     RtcAdjust(DateTime(__DATE__, __TIME__));
   }
 
-  ClearDisplay();
-  InitDisplay();
-  SetDisplayContrast(MINCONTRAST);
+  DisplayClear();
+  DisplayInit();
+  DisplaySetContrast(MINCONTRAST);
   fastBlink();
 
   LightInit();
@@ -491,10 +480,10 @@ void setup()
   // test patterns
   uint8_t testPatters[] = {0xff, 0xf0, 0x0f};
   for (uint8_t i = 0; i < sizeof(testPatters); i++) {
-    ClearDisplay(testPatters[i]);
+    DisplayClear(testPatters[i]);
     delay(1000);
   }
-  ClearDisplay();
+  DisplayClear();
 }
 
 //-----------------------------------------------------------------------------
@@ -563,7 +552,7 @@ void loop()
   if (diff > 2) {
     uint8_t step = max(diff / 32, 2);
     contrast += (contrast < desiredContrast) ? step : -step;
-    SetDisplayContrast(contrast);
+    DisplaySetContrast(contrast);
     veryFastBlink();
   }
 
