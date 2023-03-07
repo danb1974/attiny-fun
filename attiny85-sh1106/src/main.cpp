@@ -102,7 +102,7 @@ void ClearDisplay(uint8_t fill = 0x0)
   }
 }
 
-void PlotPoint(uint8_t x, uint8_t y, bool clear = false)
+void PlotDisplayPoint(uint8_t x, uint8_t y, bool clear = false)
 {
   x += 2;
 
@@ -129,7 +129,7 @@ void PlotPoint(uint8_t x, uint8_t y, bool clear = false)
   Wire.endTransmission();
 }
 
-void DrawLine(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, bool clear = false)
+void DrawDisplayLine(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, bool clear = false)
 {
   int sx, sy, e2, err;
 
@@ -142,7 +142,7 @@ void DrawLine(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, bool clear = false
   err = dx - dy;
   for (;;)
   {
-    PlotPoint(x1, y1, clear);
+    PlotDisplayPoint(x1, y1, clear);
 
     if (x1 == x2 && y1 == y2)
       return;
@@ -174,22 +174,32 @@ void SetDisplayContrast(uint8_t contrast) {
 
 void DrawVerticalSegment(uint8_t x, uint8_t y, bool clear = false)
 {
-  DrawLine(x + 0, y + 2, x + 0, y + 11, clear);
-  DrawLine(x + 1, y + 1, x + 1, y + 12, clear);
-  DrawLine(x + 2, y + 0, x + 2, y + 13, clear);
-  DrawLine(x + 3, y + 0, x + 3, y + 13, clear);
-  DrawLine(x + 4, y + 1, x + 4, y + 12, clear);
-  DrawLine(x + 5, y + 2, x + 5, y + 11, clear);
+  uint8_t lines[][2] = {
+    {(uint8_t)(y + 2), (uint8_t)(y + 11)},
+    {(uint8_t)(y + 1), (uint8_t)(y + 12)},
+    {(uint8_t)(y + 0), (uint8_t)(y + 13)},
+    {(uint8_t)(y + 0), (uint8_t)(y + 13)},
+    {(uint8_t)(y + 1), (uint8_t)(y + 12)},
+    {(uint8_t)(y + 2), (uint8_t)(y + 11)},
+  };
+
+  for (uint8_t i = 0; i < 6; i++)
+    DrawDisplayLine(x + i, lines[i][0], x + i, lines[i][1], clear);
 }
 
 void DrawHorizontalSegment(uint8_t x, uint8_t y, bool clear = false)
 {
-  DrawLine(x + 2, y + 0, x + 11, y + 0, clear);
-  DrawLine(x + 1, y + 1, x + 12, y + 1, clear);
-  DrawLine(x + 0, y + 2, x + 13, y + 2, clear);
-  DrawLine(x + 0, y + 3, x + 13, y + 3, clear);
-  DrawLine(x + 1, y + 4, x + 12, y + 4, clear);
-  DrawLine(x + 2, y + 5, x + 11, y + 5, clear);
+  uint8_t lines[][2] = {
+    {(uint8_t)(x + 2), (uint8_t)(x + 11)},
+    {(uint8_t)(x + 1), (uint8_t)(x + 12)},
+    {(uint8_t)(x + 0), (uint8_t)(x + 13)},
+    {(uint8_t)(x + 0), (uint8_t)(x + 13)},
+    {(uint8_t)(x + 1), (uint8_t)(x + 12)},
+    {(uint8_t)(x + 2), (uint8_t)(x + 11)},
+  };
+
+  for (uint8_t i = 0; i < 6; i++)
+    DrawDisplayLine(lines[i][0], y + i, lines[i][1], y + i, clear);
 }
 
 // orientation, x, y
@@ -255,7 +265,7 @@ void DrawDigit(uint8_t x, uint8_t y, uint8_t digit, bool clear = false)
 void DrawDot(uint8_t x, uint8_t y, uint8_t size, bool clear = false)
 {
   for (uint8_t i = 0; i < size; i++)
-    DrawLine(x, y + i, x + size - 1, y + i, clear);
+    DrawDisplayLine(x, y + i, x + size - 1, y + i, clear);
 }
 
 void DrawDots(bool clear = false)
