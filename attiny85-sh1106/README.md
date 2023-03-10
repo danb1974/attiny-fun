@@ -11,4 +11,7 @@ https://github.com/adafruit/RTClib
 BH1750 library<br>
 https://github.com/PeterEmbedded/BH1750FVI
 
+8x8 font<br>
+https://github.com/rene-d/fontino/
+
 For now we draw the segments line by line - really slow but pretty nice looking in real life when you watch the transitions
