@@ -264,15 +264,17 @@ void DisplayDrawLine(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, bool clear 
 
 void DisplayBitmapAt(uint8_t row, uint8_t col, uint8_t *bitmap)
 {
+  // since display is flipped and we want to have 0,0 top left, some things are reversed
+
   // flip 90 degrees
   uint8_t buffer[8] = { 0, };
-  for (uint8_t row = 0; row < 8; row++) {
-    uint8_t byte = bitmap[row];
-    uint8_t mask = 1 << row;
+  for (uint8_t r = 0; r < 8; r++) {
+    uint8_t byte = bitmap[r];
+    uint8_t mask = 1 << (7 - r); // (reverse)
 
-    for (uint8_t col = 0; col < 8; col++) {
+    for (uint8_t c = 0; c < 8; c++) {
       if (byte & 0x80) {
-        buffer[col] |= mask;
+        buffer[c] |= mask;
       }
       byte <<= 1;
     }
@@ -283,7 +285,7 @@ void DisplayBitmapAt(uint8_t row, uint8_t col, uint8_t *bitmap)
   Wire.beginTransmission(SH1106_ADDRESS);
   DisplaySingleCommand(0x00 | (col & 0x0F)); // Column low nibble
   DisplaySingleCommand(0x10 | (col >> 4));   // Column high nibble
-  DisplaySingleCommand(0xB0 | row);          // Page
+  DisplaySingleCommand(0xB0 | (7 - row));    // Page (reverse)
   Wire.endTransmission();
 
   Wire.beginTransmission(SH1106_ADDRESS);
@@ -324,7 +326,6 @@ void printStrAt(uint8_t row, uint8_t col, const char *s) {
     }
   }
 }
-
 
 void DisplaySetContrast(uint8_t contrast) {
   Wire.beginTransmission(SH1106_ADDRESS);
@@ -477,15 +478,23 @@ public:
   uint8_t second() const { return ss; }
 
 protected:
-  uint8_t y, m, d, hh, mm, ss;
+  uint16_t y;
+  uint8_t m, d, hh, mm, ss;
 };
 
-static uint8_t conv2d(const char *p)
+static uint8_t doubleDigitToInt(const char *p)
 {
-  uint8_t v = 0;
+  uint8_t v1 = 0, v2 = 0;
+
   if ('0' <= *p && *p <= '9')
-    v = *p - '0';
-  return 10 * v + *++p - '0';
+    v1 = *p - '0';
+
+  p++;
+
+  if ('0' <= *p && *p <= '9')
+    v2 = *p - '0';
+
+  return 10 * v1 + v2;
 }
 
 DateTime::DateTime(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t min, uint8_t sec)
@@ -500,8 +509,9 @@ DateTime::DateTime(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint
 
 DateTime::DateTime(const char *date, const char *time)
 {
-  // sample input: date = "Dec 26 2009", time = "12:34:56"
-  y = conv2d(date + 7) * 100 + conv2d(date + 9);
+  //                       0123456789A           01234567
+  // sample input: date = "Jan 01 2023", time = "12:34:56"
+  y = doubleDigitToInt(date + 7) * 100 + doubleDigitToInt(date + 9);
   // Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec
   switch (date[0])
   {
@@ -536,11 +546,11 @@ DateTime::DateTime(const char *date, const char *time)
     // oh no
     m = 1;
   }
-  d = conv2d(date + 4);
+  d = doubleDigitToInt(date + 4);
 
-  hh = conv2d(time);
-  mm = conv2d(time + 3);
-  ss = conv2d(time + 6);
+  hh = doubleDigitToInt(time);
+  mm = doubleDigitToInt(time + 3);
+  ss = doubleDigitToInt(time + 6);
 }
 
 static uint8_t bcd2bin(uint8_t val) { return val - 6 * (val >> 4); }
@@ -617,6 +627,39 @@ uint16_t LightGetIntensity(void)
 
 //-----------------------------------------------------------------------------
 
+void sprintf_uint8(char *buf, uint8_t number, uint8_t padLen = 0, char padChar = ' ') {
+  char tmp[4];
+
+  char *ptr = tmp;
+  uint8_t divisor = 100;
+  uint8_t zeroes = 0;
+  bool leading = true;
+
+  while (divisor > 0) {
+    uint8_t digit = number / divisor;
+
+    if (digit != 0)
+      leading = false;
+
+    if (leading && digit == 0) {
+      zeroes++;
+      *ptr++ = padChar;
+    } else {
+      *ptr++ = digit + '0';
+    }
+
+    number -= digit * divisor;
+    divisor /= 10;
+  }
+  *ptr = 0;
+
+  // we now have the padded number to three characters and the number of leading zeroes
+  padLen = max(padLen, 3 - zeroes);
+  strcpy(buf, tmp + (3 - padLen));
+}
+
+//-----------------------------------------------------------------------------
+
 void setup()
 {
   pinMode(PIN1, OUTPUT);
@@ -631,28 +674,49 @@ void setup()
   }
 
   DisplayClear();
-  DisplaySetContrast(MINCONTRAST);
   DisplayInit();
+  DisplaySetContrast(MINCONTRAST);
   fastBlink();
 
   LightInit();
   fastBlink();
 
   // test patterns
-  uint8_t testPatters[] = {0xff, 0x7e, 0x3c, 0x18};
-  for (uint8_t i = 0; i < sizeof(testPatters); i++) {
-    DisplayClear(testPatters[i]);
-    delay(500);
-  }
-  DisplayClear();
+  // uint8_t testPatters[] = {0xff, 0x7e, 0x3c, 0x18};
+  // for (uint8_t i = 0; i < sizeof(testPatters); i++) {
+  //   DisplayClear(testPatters[i]);
+  //   delay(500);
+  // }
+  // DisplayClear();
 
   slowBlink();
 
   // before being "just as clock"
-  printStrAt(3, 5, "Hello");
-  printStrAt(4, 4, "Family!");
+  char buffer[17];
+  printStrAt(2, 2, "Hello family");
 
-  delay(10000);
+  DateTime now = RtcNow();
+  sprintf_uint8(buffer + 0, now.hour(), 2, ' ');
+  buffer[2] = ':';
+  sprintf_uint8(buffer + 3, now.minute(), 2, '0');
+  printStrAt(4, 5, buffer);
+
+  sprintf_uint8(buffer + 0, now.day(), 2, ' ');
+  buffer[2] = '.';
+  sprintf_uint8(buffer + 3, now.month(), 2, '0');
+  buffer[5] = '.';
+  sprintf_uint8(buffer + 6, now.year() / 100, 2, '0');
+  sprintf_uint8(buffer + 8, now.year() % 100, 2, '0');
+  printStrAt(5, 3, buffer);
+
+  uint16_t light = LightGetIntensity();
+  if (light > 9999)
+    light = 9999;
+  sprintf_uint8(buffer + 0, light / 100, 2, '0');
+  sprintf_uint8(buffer + 2, light % 100, 2, '0');
+  printStrAt(7, 6, buffer);
+
+  delay(20000);
   DisplayClear();
 }
 
