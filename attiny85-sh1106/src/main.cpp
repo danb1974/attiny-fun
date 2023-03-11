@@ -789,10 +789,17 @@ void loop()
   uint16_t light = LightGetIntensity();
   DateTime now = RtcNow();
 
-  digits[0] = now.hour() / 10;
-  digits[1] = now.hour() % 10;
-  digits[2] = now.minute() / 10;
-  digits[3] = now.minute() % 10;
+  uint8_t hour = now.hour();
+  uint8_t minute = now.minute();
+
+  // use 12-hour format
+  if (hour >= 12)
+    hour -= 12;
+
+  digits[0] = hour / 10;
+  digits[1] = hour % 10;
+  digits[2] = minute / 10;
+  digits[3] = minute % 10;
 
   // debug show light
   // if (light > 9999) {
@@ -811,10 +818,14 @@ void loop()
   {
     if (digits[i] != oldDigits[i])
     {
+      // clear old digit
       if (oldDigits[i] != 0xff)
         DrawDigitPos(i, oldDigits[i], true);
 
-      DrawDigitPos(i, digits[i], false);
+      // do not draw first zero
+      if (i > 0 || digits[i] != 0)
+        DrawDigitPos(i, digits[i], false);
+
       oldDigits[i] = digits[i];
     }
   }
