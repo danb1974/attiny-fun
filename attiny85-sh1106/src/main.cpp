@@ -360,10 +360,10 @@ void DisplayPlotPoint(uint8_t x, uint8_t y, bool clear = false)
 
 void DisplayDrawLine(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, bool clear = false)
 {
-  int sx, sy, e2, err;
+  int8_t sx, sy, e2, err;
 
-  int dx = abs(x2 - x1);
-  int dy = abs(y2 - y1);
+  uint8_t dx = abs(x2 - x1);
+  uint8_t dy = abs(y2 - y1);
 
   sx = (x1 < x2) ? 1 : -1;
   sy = (y1 < y2) ? 1 : -1;
