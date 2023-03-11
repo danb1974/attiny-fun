@@ -691,8 +691,14 @@ void setup()
 
   slowBlink();
 
-  // before being "just as clock"
+  // before being "just as clock" show things
   char buffer[17];
+
+  DisplayClear(0xff);
+  delay(1000);
+  DisplayClear();
+  delay(1000);
+
   printStrAt(2, 2, "Hello family");
 
   DateTime now = RtcNow();
