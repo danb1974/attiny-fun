@@ -175,7 +175,7 @@ void DisplayInit()
   Wire.write(SH1106_COMMANDS);
   Wire.write(0xA1); // Flip horizontal
   Wire.write(0xC8); // Flip vertical
-  Wire.write(0xAE | 1); // Display on
+  Wire.write(0xAF); // Display on
   Wire.endTransmission();
 }
 
