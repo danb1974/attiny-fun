@@ -300,15 +300,12 @@ void DisplayBitmapAt(uint8_t row, uint8_t col, uint8_t *bitmap)
 
 void printCharAt(uint8_t row, uint8_t col, uint8_t c) {
   uint8_t bitmap[8];
-  uint8_t *ptr = bitmap;
 
   if (c < 0x20 || c > 0x7f)
     c = 0x20;
 
-  for (uint8_t i = 0; i < 4; i++) {
-    uint16_t word = pgm_read_word_near(font8x8_ib8x8u[c - 0x20] + 2 * i); 
-    *ptr++ = word & 0xff;
-    *ptr++ = word >> 8; 
+  for (uint8_t i = 0; i < 8; i++) {
+    bitmap[i] = pgm_read_byte(&font8x8_ib8x8u[c - 0x20][i]); 
   }
 
   DisplayBitmapAt(row, col, bitmap);
