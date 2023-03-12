@@ -27,7 +27,7 @@
 
 // sensor in box, tiny hole
 #define MINLUX 1
-#define MAXLUX 50
+#define MAXLUX 30
 #define MINCONTRAST 3
 #define MAXCONTRAST 255
 
@@ -552,6 +552,8 @@ protected:
   }
 };
 
+//-----------------------------------------------------------------------------
+
 #define DS1307_ADDRESS 0x68
 
 static uint8_t bcd2bin(uint8_t val) { return val - 6 * (val >> 4); }
@@ -701,11 +703,12 @@ void setup()
   printStrAt(2, 2, "Hello family");
 
   DateTime now = RtcNow();
+  // time
   sprintfUint8(buffer + 0, now.hour(), 2, ' ');
   buffer[2] = ':';
   sprintfUint8(buffer + 3, now.minute(), 2, '0');
   printStrAt(4, 5, buffer);
-
+  // date
   sprintfUint8(buffer + 0, now.day(), 2, ' ');
   buffer[2] = '.';
   sprintfUint8(buffer + 3, now.month(), 2, '0');
@@ -749,7 +752,7 @@ void loop()
   digits[2] = minute / 10;
   digits[3] = minute % 10;
 
-  // debug show light
+  // debug show light instead of time
   // if (light > 9999) {
   //   digits[0] = '9';
   //   digits[1] = '9';
