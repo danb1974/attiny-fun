@@ -173,7 +173,8 @@ void DisplayInit()
 {
   Wire.beginTransmission(SH1106_ADDRESS);
   Wire.write(SH1106_COMMANDS);
-  Wire.write(0xA0 | 1); // Flip horizontal
+  Wire.write(0xA1); // Flip horizontal
+  Wire.write(0xC8); // Flip vertical
   Wire.write(0xAE | 1); // Display on
   Wire.endTransmission();
 }
@@ -204,7 +205,8 @@ void DisplayClear(uint8_t fill = 0x0)
 
 void DisplayPlotPoint(uint8_t x, uint8_t y, bool clear = false)
 {
-  x += 2;
+  x += 2;       // driver has 132 rows but uses 2-129 not 0-127
+  y = 63 - y;   // start bottom left
 
   Wire.beginTransmission(SH1106_ADDRESS);
   DisplaySingleCommand(0x00 | (x & 0x0F));        // Column low nibble
@@ -215,7 +217,7 @@ void DisplayPlotPoint(uint8_t x, uint8_t y, bool clear = false)
   Wire.endTransmission();
 
   Wire.requestFrom(SH1106_ADDRESS, 2);
-  Wire.read();                      // Dummy read
+  Wire.read();                                    // Dummy read (see datasheet)
   uint8_t j = Wire.read();
 
   Wire.beginTransmission(SH1106_ADDRESS);
@@ -270,7 +272,7 @@ void DisplayBitmapAt(uint8_t row, uint8_t col, uint8_t *bitmap)
   uint8_t buffer[8] = { 0, };
   for (uint8_t r = 0; r < 8; r++) {
     uint8_t byte = bitmap[r];
-    uint8_t mask = 1 << (7 - r); // (reverse)
+    uint8_t mask = 1 << r;
 
     for (uint8_t c = 0; c < 8; c++) {
       if (byte & 0x80) {
@@ -283,9 +285,9 @@ void DisplayBitmapAt(uint8_t row, uint8_t col, uint8_t *bitmap)
   col = (col << 3) + 2; // SSD1306 has offset 0, SH1106 has offset 2
 
   Wire.beginTransmission(SH1106_ADDRESS);
-  DisplaySingleCommand(0x00 | (col & 0x0F)); // Column low nibble
-  DisplaySingleCommand(0x10 | (col >> 4));   // Column high nibble
-  DisplaySingleCommand(0xB0 | (7 - row));    // Page (reverse)
+  DisplaySingleCommand(0x00 | (col & 0x0F));  // Column low nibble
+  DisplaySingleCommand(0x10 | (col >> 4));    // Column high nibble
+  DisplaySingleCommand(0xB0 | row);           // Page
   Wire.endTransmission();
 
   Wire.beginTransmission(SH1106_ADDRESS);
