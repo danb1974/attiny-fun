@@ -468,10 +468,65 @@ void DrawDigitPos(uint8_t pos, uint8_t digit, bool clear = false)
 
 //-----------------------------------------------------------------------------
 
-class DateTime {
+class DateTime
+{
 public:
-  DateTime(uint16_t year, uint8_t month, uint8_t day, uint8_t hour = 0, uint8_t min = 0, uint8_t sec = 0);
-  DateTime(const char *date, const char *time);
+  DateTime(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t min, uint8_t sec)
+  {
+    y = year;
+    m = month;
+    d = day;
+    hh = hour;
+    mm = min;
+    ss = sec;
+  }
+
+  DateTime(const char *date, const char *time)
+  {
+    //                       0123456789A           01234567
+    // sample input: date = "Jan 01 2023", time = "12:34:56"
+    y = doubleDigitToUint8(date + 7) * 100 + doubleDigitToUint8(date + 9);
+    // Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec
+    switch (date[0])
+    {
+    case 'J':
+      if (date[1] == 'a')
+        m = 1;
+      else 
+        m = date[2] == 'n' ? 6 : 7;
+      break;
+    case 'F':
+      m = 2;
+      break;
+    case 'A':
+      m = date[2] == 'r' ? 4 : 8;
+      break;
+    case 'M':
+      m = date[2] == 'r' ? 3 : 5;
+      break;
+    case 'S':
+      m = 9;
+      break;
+    case 'O':
+      m = 10;
+      break;
+    case 'N':
+      m = 11;
+      break;
+    case 'D':
+      m = 12;
+      break;
+    default:
+      // oh no
+      m = 1;
+    }
+    d = doubleDigitToUint8(date + 4);
+
+    hh = doubleDigitToUint8(time);
+    mm = doubleDigitToUint8(time + 3);
+    ss = doubleDigitToUint8(time + 6);
+  }
+
   uint16_t year() const { return y; }
   uint8_t month() const { return m; }
   uint8_t day() const { return d; }
@@ -482,83 +537,25 @@ public:
 protected:
   uint16_t y;
   uint8_t m, d, hh, mm, ss;
+
+  static uint8_t doubleDigitToUint8(const char *p)
+  {
+    uint8_t number = 0;
+
+    for (uint8_t i = 0; i < 2; i++) {
+      number *= 10;
+      if ('0' <= *p && *p <= '9')
+        number += *p++ - '0';
+    }
+
+    return number;
+  }
 };
 
-static uint8_t doubleDigitToInt(const char *p)
-{
-  uint8_t v1 = 0, v2 = 0;
-
-  if ('0' <= *p && *p <= '9')
-    v1 = *p - '0';
-
-  p++;
-
-  if ('0' <= *p && *p <= '9')
-    v2 = *p - '0';
-
-  return 10 * v1 + v2;
-}
-
-DateTime::DateTime(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t min, uint8_t sec)
-{
-  y = year;
-  m = month;
-  d = day;
-  hh = hour;
-  mm = min;
-  ss = sec;
-}
-
-DateTime::DateTime(const char *date, const char *time)
-{
-  //                       0123456789A           01234567
-  // sample input: date = "Jan 01 2023", time = "12:34:56"
-  y = doubleDigitToInt(date + 7) * 100 + doubleDigitToInt(date + 9);
-  // Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec
-  switch (date[0])
-  {
-  case 'J':
-    if (date[1] == 'a')
-      m = 1;
-    else 
-      m = date[2] == 'n' ? 6 : 7;
-    break;
-  case 'F':
-    m = 2;
-    break;
-  case 'A':
-    m = date[2] == 'r' ? 4 : 8;
-    break;
-  case 'M':
-    m = date[2] == 'r' ? 3 : 5;
-    break;
-  case 'S':
-    m = 9;
-    break;
-  case 'O':
-    m = 10;
-    break;
-  case 'N':
-    m = 11;
-    break;
-  case 'D':
-    m = 12;
-    break;
-  default:
-    // oh no
-    m = 1;
-  }
-  d = doubleDigitToInt(date + 4);
-
-  hh = doubleDigitToInt(time);
-  mm = doubleDigitToInt(time + 3);
-  ss = doubleDigitToInt(time + 6);
-}
+#define DS1307_ADDRESS 0x68
 
 static uint8_t bcd2bin(uint8_t val) { return val - 6 * (val >> 4); }
 static uint8_t bin2bcd(uint8_t val) { return val + 6 * (val / 10); }
-
-#define DS1307_ADDRESS 0x68
 
 uint8_t RtcIsRunning()
 {
@@ -629,7 +626,7 @@ uint16_t LightGetIntensity(void)
 
 //-----------------------------------------------------------------------------
 
-void sprintf_uint8(char *buf, uint8_t number, uint8_t padLen = 0, char padChar = ' ') {
+void sprintfUint8(char *buf, uint8_t number, uint8_t padLen = 0, char padChar = ' ') {
   char tmp[4];
 
   char *ptr = tmp;
@@ -704,23 +701,23 @@ void setup()
   printStrAt(2, 2, "Hello family");
 
   DateTime now = RtcNow();
-  sprintf_uint8(buffer + 0, now.hour(), 2, ' ');
+  sprintfUint8(buffer + 0, now.hour(), 2, ' ');
   buffer[2] = ':';
-  sprintf_uint8(buffer + 3, now.minute(), 2, '0');
+  sprintfUint8(buffer + 3, now.minute(), 2, '0');
   printStrAt(4, 5, buffer);
 
-  sprintf_uint8(buffer + 0, now.day(), 2, ' ');
+  sprintfUint8(buffer + 0, now.day(), 2, ' ');
   buffer[2] = '.';
-  sprintf_uint8(buffer + 3, now.month(), 2, '0');
+  sprintfUint8(buffer + 3, now.month(), 2, '0');
   buffer[5] = '.';
-  sprintf_uint8(buffer + 6, now.year() / 100, 2, '0');
-  sprintf_uint8(buffer + 8, now.year() % 100, 2, '0');
+  sprintfUint8(buffer + 6, now.year() / 100, 2, '0');
+  sprintfUint8(buffer + 8, now.year() % 100, 2, '0');
   printStrAt(5, 3, buffer);
 
   uint16_t light = LightGetIntensity();
-  sprintf_uint8(buffer + 0, light / 10000, 1); light %= 10000;
-  sprintf_uint8(buffer + 1, light / 100, 2, '0');
-  sprintf_uint8(buffer + 3, light % 100, 2, '0');
+  sprintfUint8(buffer + 0, light / 10000, 1); light %= 10000;
+  sprintfUint8(buffer + 1, light / 100, 2, '0');
+  sprintfUint8(buffer + 3, light % 100, 2, '0');
   printStrAt(7, 5, buffer);
 
   delay(20000);
