@@ -270,9 +270,9 @@ void DisplayBitmapAt(uint8_t row, uint8_t col, uint8_t *bitmap)
 
   // flip 90 degrees
   uint8_t buffer[8] = { 0, };
+  uint8_t mask = 0x01;
   for (uint8_t r = 0; r < 8; r++) {
     uint8_t byte = bitmap[r];
-    uint8_t mask = 1 << r;
 
     for (uint8_t c = 0; c < 8; c++) {
       if (byte & 0x80) {
@@ -280,6 +280,8 @@ void DisplayBitmapAt(uint8_t row, uint8_t col, uint8_t *bitmap)
       }
       byte <<= 1;
     }
+
+    mask <<= 1;
   }
 
   col = (col << 3) + 2; // SSD1306 has offset 0, SH1106 has offset 2
