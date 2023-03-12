@@ -64,7 +64,7 @@ void veryFastBlink() {
 #define SH1106_DATAS 0x40
 
 const uint8_t font8x8_ib8x8u[][8] PROGMEM = {
-    // ---------------------------  0-127 ---------------------------
+    // ---------------------------  32-127 ---------------------------
     {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},  // 0020 (space)
     {0x30, 0x78, 0x78, 0x30, 0x30, 0x00, 0x30, 0x00},  // 0021 (exclam)
     {0x6c, 0x6c, 0x6c, 0x00, 0x00, 0x00, 0x00, 0x00},  // 0022 (quotedbl)
@@ -675,7 +675,7 @@ void setup()
 
   DisplayClear();
   DisplayInit();
-  DisplaySetContrast(MINCONTRAST);
+  DisplaySetContrast(MAXCONTRAST);
   fastBlink();
 
   LightInit();
