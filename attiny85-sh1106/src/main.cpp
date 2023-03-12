@@ -643,7 +643,7 @@ void sprintf_uint8(char *buf, uint8_t number, uint8_t padLen = 0, char padChar =
     if (digit != 0)
       leading = false;
 
-    if (leading && digit == 0) {
+    if (leading && divisor > 1 && digit == 0) {
       zeroes++;
       *ptr++ = padChar;
     } else {
@@ -718,11 +718,10 @@ void setup()
   printStrAt(5, 3, buffer);
 
   uint16_t light = LightGetIntensity();
-  if (light > 9999)
-    light = 9999;
-  sprintf_uint8(buffer + 0, light / 100, 2, '0');
-  sprintf_uint8(buffer + 2, light % 100, 2, '0');
-  printStrAt(7, 6, buffer);
+  sprintf_uint8(buffer + 0, light / 10000, 1); light %= 10000;
+  sprintf_uint8(buffer + 1, light / 100, 2, '0');
+  sprintf_uint8(buffer + 3, light % 100, 2, '0');
+  printStrAt(7, 5, buffer);
 
   delay(20000);
   DisplayClear();
