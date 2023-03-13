@@ -660,6 +660,9 @@ void sprintfUint8(char *buf, uint8_t number, uint8_t padLen = 0, char padChar = 
 
 //-----------------------------------------------------------------------------
 
+uint8_t contrast = MAXCONTRAST;
+uint8_t desiredContrast = contrast;
+
 void setup()
 {
   pinMode(PIN1, OUTPUT);
@@ -675,7 +678,7 @@ void setup()
 
   DisplayClear();
   DisplayInit();
-  DisplaySetContrast(MAXCONTRAST);
+  DisplaySetContrast(contrast);
   fastBlink();
 
   LightInit();
@@ -731,9 +734,6 @@ void setup()
 uint8_t oldDigits[4] = {0xff, 0xff, 0xff, 0xff};
 uint8_t digits[4] = {0, 0, 0, 0};
 bool dots = true;
-
-uint8_t desiredContrast = MINCONTRAST;
-uint8_t contrast = MINCONTRAST;
 
 void loop()
 {
@@ -799,7 +799,7 @@ void loop()
     contrast = MAXCONTRAST;
 
   uint8_t diff = abs(contrast - desiredContrast);
-  if (diff > 2) {
+  if (diff > 1) {
     uint8_t step = max(diff / 32, 2);
     contrast += (contrast < desiredContrast) ? step : -step;
     DisplaySetContrast(contrast);
