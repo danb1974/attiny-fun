@@ -467,89 +467,77 @@ void DrawDigitPos(uint8_t pos, uint8_t digit, bool clear = false)
 
 //-----------------------------------------------------------------------------
 
-class DateTime
+uint8_t doubleDigitToUint8(const char *p)
 {
-public:
-  DateTime(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t min, uint8_t sec)
-  {
-    y = year;
-    m = month;
-    d = day;
-    hh = hour;
-    mm = min;
-    ss = sec;
+  uint8_t number = 0;
+
+  for (uint8_t i = 0; i < 2; i++) {
+    number *= 10;
+    if ('0' <= *p && *p <= '9')
+      number += *p++ - '0';
   }
 
-  DateTime(const char *date, const char *time)
-  {
-    //                       0123456789A           01234567
-    // sample input: date = "Jan 01 2023", time = "12:34:56"
-    y = doubleDigitToUint8(date + 7) * 100 + doubleDigitToUint8(date + 9);
-    // Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec
-    switch (date[0])
-    {
-    case 'J':
-      if (date[1] == 'a')
-        m = 1;
-      else 
-        m = date[2] == 'n' ? 6 : 7;
-      break;
-    case 'F':
-      m = 2;
-      break;
-    case 'A':
-      m = date[2] == 'r' ? 4 : 8;
-      break;
-    case 'M':
-      m = date[2] == 'r' ? 3 : 5;
-      break;
-    case 'S':
-      m = 9;
-      break;
-    case 'O':
-      m = 10;
-      break;
-    case 'N':
-      m = 11;
-      break;
-    case 'D':
-      m = 12;
-      break;
-    default:
-      // oh no
-      m = 1;
-    }
-    d = doubleDigitToUint8(date + 4);
+  return number;
+}
 
-    hh = doubleDigitToUint8(time);
-    mm = doubleDigitToUint8(time + 3);
-    ss = doubleDigitToUint8(time + 6);
-  }
-
-  uint16_t year() const { return y; }
-  uint8_t month() const { return m; }
-  uint8_t day() const { return d; }
-  uint8_t hour() const { return hh; }
-  uint8_t minute() const { return mm; }
-  uint8_t second() const { return ss; }
-
-protected:
-  uint16_t y;
-  uint8_t m, d, hh, mm, ss;
-
-  static uint8_t doubleDigitToUint8(const char *p)
-  {
-    uint8_t number = 0;
-
-    for (uint8_t i = 0; i < 2; i++) {
-      number *= 10;
-      if ('0' <= *p && *p <= '9')
-        number += *p++ - '0';
-    }
-
-    return number;
-  }
+struct DateTime {
+  uint16_t year;
+  uint8_t month;
+  uint8_t day;
+  uint8_t hour;
+  uint8_t minute;
+  uint8_t second;
 };
+
+struct DateTime compilerStampToDateTime(const char *date, const char *time)
+{
+  struct DateTime dt;
+
+  //                       0123456789A           01234567
+  // sample input: date = "Jan 01 2023", time = "12:34:56"
+  dt.year = doubleDigitToUint8(date + 7) * 100 + doubleDigitToUint8(date + 9);
+  // Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec
+  switch (date[0])
+  {
+  case 'J':
+    if (date[1] == 'a')
+      dt.month = 1;
+    else 
+      dt.month = date[2] == 'n' ? 6 : 7;
+    break;
+  case 'F':
+    dt.month = 2;
+    break;
+  case 'A':
+    dt.month = date[2] == 'r' ? 4 : 8;
+    break;
+  case 'M':
+    dt.month = date[2] == 'r' ? 3 : 5;
+    break;
+  case 'S':
+    dt.month = 9;
+    break;
+  case 'O':
+    dt.month = 10;
+    break;
+  case 'N':
+    dt.month = 11;
+    break;
+  case 'D':
+    dt.month = 12;
+    break;
+  default:
+    // oh no
+    dt.month = 1;
+  }
+  dt.day = doubleDigitToUint8(date + 4);
+
+  dt.hour = doubleDigitToUint8(time);
+  dt.minute = doubleDigitToUint8(time + 3);
+  dt.second = doubleDigitToUint8(time + 6);
+
+  return dt;
+}
 
 //-----------------------------------------------------------------------------
 
@@ -569,37 +557,39 @@ uint8_t RtcIsRunning()
   return !(ss >> 7);
 }
 
-void RtcAdjust(const DateTime &dt)
+void RtcAdjust(const struct DateTime &dt)
 {
   Wire.beginTransmission(DS1307_ADDRESS);
   Wire.write(0);
-  Wire.write(bin2bcd(dt.second()));
-  Wire.write(bin2bcd(dt.minute()));
-  Wire.write(bin2bcd(dt.hour()));
+  Wire.write(bin2bcd(dt.second));
+  Wire.write(bin2bcd(dt.minute));
+  Wire.write(bin2bcd(dt.hour));
   Wire.write(bin2bcd(0));
-  Wire.write(bin2bcd(dt.day()));
-  Wire.write(bin2bcd(dt.month()));
-  Wire.write(bin2bcd(dt.year() - 2000));
+  Wire.write(bin2bcd(dt.day));
+  Wire.write(bin2bcd(dt.month));
+  Wire.write(bin2bcd(dt.year - 2000));
   Wire.write(0);
   Wire.endTransmission();
 }
 
-DateTime RtcNow()
+struct DateTime RtcNow()
 {
+  struct DateTime dt;
+
   Wire.beginTransmission(DS1307_ADDRESS);
   Wire.write(0);
   Wire.endTransmission();
 
   Wire.requestFrom(DS1307_ADDRESS, 7);
-  uint8_t ss = bcd2bin(Wire.read() & 0x7F);
-  uint8_t mm = bcd2bin(Wire.read());
-  uint8_t hh = bcd2bin(Wire.read());
+  dt.second = bcd2bin(Wire.read() & 0x7F);
+  dt.minute = bcd2bin(Wire.read());
+  dt.hour = bcd2bin(Wire.read());
   Wire.read();
-  uint8_t d = bcd2bin(Wire.read());
-  uint8_t m = bcd2bin(Wire.read());
-  uint16_t y = bcd2bin(Wire.read()) + 2000;
+  dt.day = bcd2bin(Wire.read());
+  dt.month = bcd2bin(Wire.read());
+  dt.year = bcd2bin(Wire.read()) + 2000;
 
-  return DateTime(y, m, d, hh, mm, ss);
+  return dt;
 }
 
 //-----------------------------------------------------------------------------
@@ -672,7 +662,7 @@ void setup()
   fastBlink();
   
   if (!RtcIsRunning()) {
-    RtcAdjust(DateTime(__DATE__, __TIME__));
+    RtcAdjust(compilerStampToDateTime(__DATE__, __TIME__));
     slowBlink();
   }
 
@@ -706,17 +696,17 @@ void setup()
 
   DateTime now = RtcNow();
   // time
-  sprintfUint8(buffer + 0, now.hour(), 2, ' ');
+  sprintfUint8(buffer + 0, now.hour, 2, ' ');
   buffer[2] = ':';
-  sprintfUint8(buffer + 3, now.minute(), 2, '0');
+  sprintfUint8(buffer + 3, now.minute, 2, '0');
   printStrAt(4, 5, buffer);
   // date
-  sprintfUint8(buffer + 0, now.day(), 2, ' ');
+  sprintfUint8(buffer + 0, now.day, 2, ' ');
   buffer[2] = '.';
-  sprintfUint8(buffer + 3, now.month(), 2, '0');
+  sprintfUint8(buffer + 3, now.month, 2, '0');
   buffer[5] = '.';
-  sprintfUint8(buffer + 6, now.year() / 100, 2, '0');
-  sprintfUint8(buffer + 8, now.year() % 100, 2, '0');
+  sprintfUint8(buffer + 6, now.year / 100, 2, '0');
+  sprintfUint8(buffer + 8, now.year % 100, 2, '0');
   printStrAt(5, 3, buffer);
 
   uint16_t light = LightGetIntensity();
@@ -740,8 +730,8 @@ void loop()
   uint16_t light = LightGetIntensity();
 
   DateTime now = RtcNow();
-  uint8_t hour = now.hour();
-  uint8_t minute = now.minute();
+  uint8_t hour = now.hour;
+  uint8_t minute = now.minute;
   // use 12-hour format
   // if (hour >= 12)
   //   hour -= 12;
