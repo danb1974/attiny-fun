@@ -561,14 +561,19 @@ void RtcAdjust(const struct DateTime &dt)
 {
   Wire.beginTransmission(DS1307_ADDRESS);
   Wire.write(0);
-  Wire.write(bin2bcd(dt.second));
+  Wire.write(0x80); // stop clock, will write seconds later
   Wire.write(bin2bcd(dt.minute));
   Wire.write(bin2bcd(dt.hour));
-  Wire.write(bin2bcd(0));
+  Wire.write(bin2bcd(0)); // DOW
   Wire.write(bin2bcd(dt.day));
   Wire.write(bin2bcd(dt.month));
-  Wire.write(bin2bcd(dt.year - 2000));
+  Wire.write(bin2bcd((dt.year - 2000) & 0xff));
+  //Wire.write(0);
+  Wire.endTransmission();
+
+  Wire.beginTransmission(DS1307_ADDRESS);
   Wire.write(0);
+  Wire.write(bin2bcd(dt.second & 0x7f)); // update seconds and start clock
   Wire.endTransmission();
 }
 
