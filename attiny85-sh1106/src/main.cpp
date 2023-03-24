@@ -124,43 +124,43 @@ const uint8_t font8x8_ib8x8u[][8] PROGMEM = {
     {0xc6, 0xc6, 0x6c, 0x38, 0x38, 0x6c, 0xc6, 0x00},  // 0058 (X)
     {0xcc, 0xcc, 0xcc, 0x78, 0x30, 0x30, 0x78, 0x00},  // 0059 (Y)
     {0xfe, 0xc6, 0x8c, 0x18, 0x32, 0x66, 0xfe, 0x00},  // 005a (Z)
-    {0x78, 0x60, 0x60, 0x60, 0x60, 0x60, 0x78, 0x00},  // 005b (bracketleft)
-    {0xc0, 0x60, 0x30, 0x18, 0x0c, 0x06, 0x02, 0x00},  // 005c (backslash)
-    {0x78, 0x18, 0x18, 0x18, 0x18, 0x18, 0x78, 0x00},  // 005d (bracketright)
-    {0x10, 0x38, 0x6c, 0xc6, 0x00, 0x00, 0x00, 0x00},  // 005e (asciicircum)
-    {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff},  // 005f (underscore)
-    {0x30, 0x30, 0x18, 0x00, 0x00, 0x00, 0x00, 0x00},  // 0060 (grave)
-    {0x00, 0x00, 0x78, 0x0c, 0x7c, 0xcc, 0x76, 0x00},  // 0061 (a)
-    {0xe0, 0x60, 0x60, 0x7c, 0x66, 0x66, 0xdc, 0x00},  // 0062 (b)
-    {0x00, 0x00, 0x78, 0xcc, 0xc0, 0xcc, 0x78, 0x00},  // 0063 (c)
-    {0x1c, 0x0c, 0x0c, 0x7c, 0xcc, 0xcc, 0x76, 0x00},  // 0064 (d)
-    {0x00, 0x00, 0x78, 0xcc, 0xfc, 0xc0, 0x78, 0x00},  // 0065 (e)
-    {0x38, 0x6c, 0x60, 0xf0, 0x60, 0x60, 0xf0, 0x00},  // 0066 (f)
-    {0x00, 0x00, 0x76, 0xcc, 0xcc, 0x7c, 0x0c, 0xf8},  // 0067 (g)
-    {0xe0, 0x60, 0x6c, 0x76, 0x66, 0x66, 0xe6, 0x00},  // 0068 (h)
-    {0x30, 0x00, 0x70, 0x30, 0x30, 0x30, 0x78, 0x00},  // 0069 (i)
-    {0x0c, 0x00, 0x0c, 0x0c, 0x0c, 0xcc, 0xcc, 0x78},  // 006a (j)
-    {0xe0, 0x60, 0x66, 0x6c, 0x78, 0x6c, 0xe6, 0x00},  // 006b (k)
-    {0x70, 0x30, 0x30, 0x30, 0x30, 0x30, 0x78, 0x00},  // 006c (l)
-    {0x00, 0x00, 0xcc, 0xfe, 0xfe, 0xd6, 0xc6, 0x00},  // 006d (m)
-    {0x00, 0x00, 0xf8, 0xcc, 0xcc, 0xcc, 0xcc, 0x00},  // 006e (n)
-    {0x00, 0x00, 0x78, 0xcc, 0xcc, 0xcc, 0x78, 0x00},  // 006f (o)
-    {0x00, 0x00, 0xdc, 0x66, 0x66, 0x7c, 0x60, 0xf0},  // 0070 (p)
-    {0x00, 0x00, 0x76, 0xcc, 0xcc, 0x7c, 0x0c, 0x1e},  // 0071 (q)
-    {0x00, 0x00, 0xdc, 0x76, 0x66, 0x60, 0xf0, 0x00},  // 0072 (r)
-    {0x00, 0x00, 0x7c, 0xc0, 0x78, 0x0c, 0xf8, 0x00},  // 0073 (s)
-    {0x10, 0x30, 0x7c, 0x30, 0x30, 0x34, 0x18, 0x00},  // 0074 (t)
-    {0x00, 0x00, 0xcc, 0xcc, 0xcc, 0xcc, 0x76, 0x00},  // 0075 (u)
-    {0x00, 0x00, 0xcc, 0xcc, 0xcc, 0x78, 0x30, 0x00},  // 0076 (v)
-    {0x00, 0x00, 0xc6, 0xd6, 0xfe, 0xfe, 0x6c, 0x00},  // 0077 (w)
-    {0x00, 0x00, 0xc6, 0x6c, 0x38, 0x6c, 0xc6, 0x00},  // 0078 (x)
-    {0x00, 0x00, 0xcc, 0xcc, 0xcc, 0x7c, 0x0c, 0xf8},  // 0079 (y)
-    {0x00, 0x00, 0xfc, 0x98, 0x30, 0x64, 0xfc, 0x00},  // 007a (z)
-    {0x1c, 0x30, 0x30, 0xe0, 0x30, 0x30, 0x1c, 0x00},  // 007b (braceleft)
-    {0x18, 0x18, 0x18, 0x00, 0x18, 0x18, 0x18, 0x00},  // 007c (bar)
-    {0xe0, 0x30, 0x30, 0x1c, 0x30, 0x30, 0xe0, 0x00},  // 007d (braceright)
-    {0x76, 0xdc, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},  // 007e (asciitilde)
-    {0x00, 0x10, 0x38, 0x6c, 0xc6, 0xc6, 0xfe, 0x00},  // 007f (uni007F)
+    // {0x78, 0x60, 0x60, 0x60, 0x60, 0x60, 0x78, 0x00},  // 005b (bracketleft)
+    // {0xc0, 0x60, 0x30, 0x18, 0x0c, 0x06, 0x02, 0x00},  // 005c (backslash)
+    // {0x78, 0x18, 0x18, 0x18, 0x18, 0x18, 0x78, 0x00},  // 005d (bracketright)
+    // {0x10, 0x38, 0x6c, 0xc6, 0x00, 0x00, 0x00, 0x00},  // 005e (asciicircum)
+    // {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff},  // 005f (underscore)
+    // {0x30, 0x30, 0x18, 0x00, 0x00, 0x00, 0x00, 0x00},  // 0060 (grave)
+    // {0x00, 0x00, 0x78, 0x0c, 0x7c, 0xcc, 0x76, 0x00},  // 0061 (a)
+    // {0xe0, 0x60, 0x60, 0x7c, 0x66, 0x66, 0xdc, 0x00},  // 0062 (b)
+    // {0x00, 0x00, 0x78, 0xcc, 0xc0, 0xcc, 0x78, 0x00},  // 0063 (c)
+    // {0x1c, 0x0c, 0x0c, 0x7c, 0xcc, 0xcc, 0x76, 0x00},  // 0064 (d)
+    // {0x00, 0x00, 0x78, 0xcc, 0xfc, 0xc0, 0x78, 0x00},  // 0065 (e)
+    // {0x38, 0x6c, 0x60, 0xf0, 0x60, 0x60, 0xf0, 0x00},  // 0066 (f)
+    // {0x00, 0x00, 0x76, 0xcc, 0xcc, 0x7c, 0x0c, 0xf8},  // 0067 (g)
+    // {0xe0, 0x60, 0x6c, 0x76, 0x66, 0x66, 0xe6, 0x00},  // 0068 (h)
+    // {0x30, 0x00, 0x70, 0x30, 0x30, 0x30, 0x78, 0x00},  // 0069 (i)
+    // {0x0c, 0x00, 0x0c, 0x0c, 0x0c, 0xcc, 0xcc, 0x78},  // 006a (j)
+    // {0xe0, 0x60, 0x66, 0x6c, 0x78, 0x6c, 0xe6, 0x00},  // 006b (k)
+    // {0x70, 0x30, 0x30, 0x30, 0x30, 0x30, 0x78, 0x00},  // 006c (l)
+    // {0x00, 0x00, 0xcc, 0xfe, 0xfe, 0xd6, 0xc6, 0x00},  // 006d (m)
+    // {0x00, 0x00, 0xf8, 0xcc, 0xcc, 0xcc, 0xcc, 0x00},  // 006e (n)
+    // {0x00, 0x00, 0x78, 0xcc, 0xcc, 0xcc, 0x78, 0x00},  // 006f (o)
+    // {0x00, 0x00, 0xdc, 0x66, 0x66, 0x7c, 0x60, 0xf0},  // 0070 (p)
+    // {0x00, 0x00, 0x76, 0xcc, 0xcc, 0x7c, 0x0c, 0x1e},  // 0071 (q)
+    // {0x00, 0x00, 0xdc, 0x76, 0x66, 0x60, 0xf0, 0x00},  // 0072 (r)
+    // {0x00, 0x00, 0x7c, 0xc0, 0x78, 0x0c, 0xf8, 0x00},  // 0073 (s)
+    // {0x10, 0x30, 0x7c, 0x30, 0x30, 0x34, 0x18, 0x00},  // 0074 (t)
+    // {0x00, 0x00, 0xcc, 0xcc, 0xcc, 0xcc, 0x76, 0x00},  // 0075 (u)
+    // {0x00, 0x00, 0xcc, 0xcc, 0xcc, 0x78, 0x30, 0x00},  // 0076 (v)
+    // {0x00, 0x00, 0xc6, 0xd6, 0xfe, 0xfe, 0x6c, 0x00},  // 0077 (w)
+    // {0x00, 0x00, 0xc6, 0x6c, 0x38, 0x6c, 0xc6, 0x00},  // 0078 (x)
+    // {0x00, 0x00, 0xcc, 0xcc, 0xcc, 0x7c, 0x0c, 0xf8},  // 0079 (y)
+    // {0x00, 0x00, 0xfc, 0x98, 0x30, 0x64, 0xfc, 0x00},  // 007a (z)
+    // {0x1c, 0x30, 0x30, 0xe0, 0x30, 0x30, 0x1c, 0x00},  // 007b (braceleft)
+    // {0x18, 0x18, 0x18, 0x00, 0x18, 0x18, 0x18, 0x00},  // 007c (bar)
+    // {0xe0, 0x30, 0x30, 0x1c, 0x30, 0x30, 0xe0, 0x00},  // 007d (braceright)
+    // {0x76, 0xdc, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},  // 007e (asciitilde)
+    // {0x00, 0x10, 0x38, 0x6c, 0xc6, 0xc6, 0xfe, 0x00},  // 007f (uni007F)
 };
 
 void DisplaySingleCommand(uint8_t data)
@@ -301,13 +301,20 @@ void DisplayBitmapAt(uint8_t row, uint8_t col, uint8_t *bitmap)
 }
 
 void printCharAt(uint8_t row, uint8_t col, uint8_t c) {
-  uint8_t bitmap[8];
+  uint8_t bitmap[8] = {0,};
 
-  if (c < 0x20 || c > 0x7f)
-    c = 0x20;
+  if (c != ' ') {
+    // lowercase only due to memory constraints
+    if (c >= 'a' && c <= 'z') {
+      c -= 'a' - 'A';
+    }
+    if (c < ' ' || c > 'Z') {
+      c = ' ';
+    }
 
-  for (uint8_t i = 0; i < 8; i++) {
-    bitmap[i] = pgm_read_byte(&font8x8_ib8x8u[c - 0x20][i]); 
+    for (uint8_t i = 0; i < 8; i++) {
+      bitmap[i] = pgm_read_byte(&font8x8_ib8x8u[c - 0x20][i]); 
+    }
   }
 
   DisplayBitmapAt(row, col, bitmap);
@@ -655,6 +662,26 @@ void sprintfUint8(char *buf, uint8_t number, uint8_t padLen = 0, char padChar = 
 
 //-----------------------------------------------------------------------------
 
+volatile uint8_t presses = 0;
+volatile bool pressed = false;
+
+ISR(PCINT0_vect)
+{
+  static unsigned long lastTimeinterrupt = 0;
+  unsigned long timeInterrupt = millis();
+
+  pressed = digitalRead(PIN3) == LOW;
+  digitalWrite(PIN1, pressed ? HIGH : LOW);
+
+  if (pressed && timeInterrupt - lastTimeinterrupt > 10) {
+    presses++;
+  }
+
+  lastTimeinterrupt = timeInterrupt;
+}
+
+//-----------------------------------------------------------------------------
+
 uint8_t contrast = MAXCONTRAST;
 uint8_t desiredContrast = contrast;
 
@@ -662,6 +689,14 @@ void setup()
 {
   pinMode(PIN1, OUTPUT);
   slowBlink();
+
+  // button generates interrupt on change
+  cli();
+  PCMSK |= (1 << PCINT3);
+  GIMSK |= (1 << PCIE);
+  pinMode(PIN3, INPUT_PULLUP);
+  sei();    
+  fastBlink();
 
   Wire.begin();
   fastBlink();
@@ -679,23 +714,14 @@ void setup()
   LightInit();
   fastBlink();
 
-  // test patterns
-  // uint8_t testPatters[] = {0xff, 0x7e, 0x3c, 0x18};
-  // for (uint8_t i = 0; i < sizeof(testPatters); i++) {
-  //   DisplayClear(testPatters[i]);
-  //   delay(500);
-  // }
-  // DisplayClear();
-
-  slowBlink();
-
-  // before being "just as clock" show things
-  char buffer[17];
-
+  // display test
   DisplayClear(0xff);
   delay(1000);
   DisplayClear();
   delay(1000);
+
+  // before being "just as clock" show things
+  char buffer[17];
 
   printStrAt(2, 2, "Hello family");
 
@@ -714,92 +740,176 @@ void setup()
   sprintfUint8(buffer + 8, now.year % 100, 2, '0');
   printStrAt(5, 3, buffer);
 
-  uint16_t light = LightGetIntensity();
-  sprintfUint8(buffer + 0, light / 10000, 1); light %= 10000;
-  sprintfUint8(buffer + 1, light / 100, 2, '0');
-  sprintfUint8(buffer + 3, light % 100, 2, '0');
-  printStrAt(7, 5, buffer);
+  // uint16_t light = LightGetIntensity();
+  // sprintfUint8(buffer + 0, light / 10000, 1); light %= 10000;
+  // sprintfUint8(buffer + 1, light / 100, 2, '0');
+  // sprintfUint8(buffer + 3, light % 100, 2, '0');
+  // printStrAt(7, 5, buffer);
 
-  delay(20000);
+  delay(10000);
   DisplayClear();
 }
 
 //-----------------------------------------------------------------------------
 
-uint8_t oldDigits[4] = {0xff, 0xff, 0xff, 0xff};
-uint8_t digits[4] = {0, 0, 0, 0};
+uint8_t oldDigits[4] = {0xff,};
+uint8_t digits[4] = {0,};
 bool dots = true;
+
+enum State {
+  Normal = 1,
+  Hour = 2,
+  Minute = 3
+};
+State state = Normal;
+
+uint8_t stateCounter = 0;
+uint8_t oldPresses = 0;
+uint8_t setHour;
+uint8_t setMinute;
 
 void loop()
 {
-  uint16_t light = LightGetIntensity();
+  delay(1000);
 
   DateTime now = RtcNow();
   uint8_t hour = now.hour;
   uint8_t minute = now.minute;
-  // use 12-hour format
-  // if (hour >= 12)
-  //   hour -= 12;
 
   digits[0] = hour / 10;
   digits[1] = hour % 10;
   digits[2] = minute / 10;
   digits[3] = minute % 10;
 
-  // debug show light instead of time
-  // if (light > 9999) {
-  //   digits[0] = '9';
-  //   digits[1] = '9';
-  //   digits[2] = '9';
-  //   digits[3] = '9';
-  // } else {
-  //   digits[0] = light / 1000; light %= 1000;
-  //   digits[1] = light / 100; light %= 100;
-  //   digits[2] = light / 10; light %= 10;
-  //   digits[3] = light;
-  // }
+  if (state == Normal) {
+   if (pressed) {
+      stateCounter++;
+      if (stateCounter > 3) {
+        state = Hour;
+        stateCounter = 0;
 
-  for (uint8_t i = 0; i < 4; i++)
-  {
-    if (digits[i] != oldDigits[i])
+        presses = 1;
+        oldPresses = 0;
+
+        setHour = now.hour;
+        setMinute = now.minute;
+
+        DisplayClear();
+        return;
+      }
+    } else {
+      stateCounter = 0;
+    }
+
+    for (uint8_t i = 0; i < 4; i++)
     {
-      // clear old digit
-      if (oldDigits[i] != 0xff)
-        DrawDigitPos(i, oldDigits[i], true);
+      if (digits[i] != oldDigits[i])
+      {
+        // clear old digit
+        if (oldDigits[i] != 0xff)
+          DrawDigitPos(i, oldDigits[i], true);
 
-      // do not draw first zero
-      if (i > 0 || digits[i] != 0)
-        DrawDigitPos(i, digits[i], false);
+        // do not draw first zero
+        if (i > 0 || digits[i] != 0)
+          DrawDigitPos(i, digits[i], false);
 
-      oldDigits[i] = digits[i];
+        oldDigits[i] = digits[i];
+      }
+    }
+
+    DrawDots(dots);
+    dots = !dots;
+
+    uint16_t light = LightGetIntensity();
+    if (light < MINLUX) {
+      desiredContrast = MINCONTRAST;
+    } else if (light > MAXLUX) {
+      desiredContrast = MAXCONTRAST;
+    } else {
+      uint16_t offset = (light - MINLUX) * (MAXCONTRAST - MINCONTRAST) / (MAXLUX - MINLUX);
+      desiredContrast = MINCONTRAST + offset;
+    }
+        
+    // just to be sure
+    if (contrast < MINCONTRAST)
+      contrast = MINCONTRAST;
+    if (contrast > MAXCONTRAST)
+      contrast = MAXCONTRAST;
+
+    uint8_t diff = abs(contrast - desiredContrast);
+    if (diff > 1) {
+      uint8_t step = max(diff / 32, 2);
+      contrast += (contrast < desiredContrast) ? step : -step;
+      DisplaySetContrast(contrast);
+      veryFastBlink();
     }
   }
 
-  DrawDots(dots);
-  dots = !dots;
+  if (state == Hour) {
+    if (presses > oldPresses) {
+      oldPresses = presses;
+      stateCounter = 0;
 
-  if (light < MINLUX) {
-    desiredContrast = MINCONTRAST;
-  } else if (light > MAXLUX) {
-    desiredContrast = MAXCONTRAST;
-  } else {
-    uint16_t offset = (light - MINLUX) * (MAXCONTRAST - MINCONTRAST) / (MAXLUX - MINLUX);
-    desiredContrast = MINCONTRAST + offset;
+      if (presses > 1) setHour++;
+      if (setHour > 23) setHour = 0;
+
+      DrawDigitPos(0, setHour / 10);
+      DrawDigitPos(1, setHour % 10);
+    } else {
+      stateCounter++;
+      if (stateCounter > 5) {
+        state = Minute;
+        stateCounter = 0;
+
+        presses = 1;
+        oldPresses = 0;
+
+        DisplayClear();
+        return;
+      }
+    }
+
+    return;
   }
-      
-  // just to be sure
-  if (contrast < MINCONTRAST)
-    contrast = MINCONTRAST;
-  if (contrast > MAXCONTRAST)
-    contrast = MAXCONTRAST;
 
-  uint8_t diff = abs(contrast - desiredContrast);
-  if (diff > 1) {
-    uint8_t step = max(diff / 32, 2);
-    contrast += (contrast < desiredContrast) ? step : -step;
-    DisplaySetContrast(contrast);
-    veryFastBlink();
+  if (state == Minute) {
+    if (presses > oldPresses) {
+      oldPresses = presses;
+      stateCounter = 0;
+
+      if (presses > 1) setMinute++;
+      if (setMinute > 59) setMinute = 0;
+
+      DrawDigitPos(2, setMinute / 10);
+      DrawDigitPos(3, setMinute % 10);
+    } else {
+      stateCounter++;
+      if (stateCounter > 5) {
+        state = Normal;
+        stateCounter = 0;
+
+        oldDigits[0] = 0xff;
+        oldDigits[1] = 0xff;
+        oldDigits[2] = 0xff;
+        oldDigits[3] = 0xff;
+
+        // save new time
+        DateTime newDt;
+        newDt.hour = setHour;
+        newDt.minute = setMinute;
+        newDt.second = 0;
+        newDt.year = now.year;
+        newDt.month = now.month;
+        newDt.day = now.day;
+        RtcAdjust(newDt);
+
+        DisplayClear();
+        return;
+      }
+    }
+
+    return;
   }
 
-  delay(1000);
+  state = Normal;
 }
