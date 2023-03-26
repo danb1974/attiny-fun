@@ -269,7 +269,7 @@ void DisplayBitmapAt(uint8_t row, uint8_t col, uint8_t *bitmap)
   // since display is flipped and we want to have 0,0 top left, some things are reversed
 
   // flip 90 degrees
-  uint8_t buffer[8] = { 0, };
+  uint8_t buffer[8] = {0, 0, 0, 0, 0, 0, 0, 0};
   uint8_t mask = 0x01;
   for (uint8_t r = 0; r < 8; r++) {
     uint8_t byte = bitmap[r];
@@ -301,7 +301,7 @@ void DisplayBitmapAt(uint8_t row, uint8_t col, uint8_t *bitmap)
 }
 
 void printCharAt(uint8_t row, uint8_t col, uint8_t c) {
-  uint8_t bitmap[8] = {0,};
+  uint8_t bitmap[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
   if (c != ' ') {
     // lowercase only due to memory constraints
@@ -740,11 +740,11 @@ void setup()
   sprintfUint8(buffer + 8, now.year % 100, 2, '0');
   printStrAt(5, 3, buffer);
 
-  // uint16_t light = LightGetIntensity();
-  // sprintfUint8(buffer + 0, light / 10000, 1); light %= 10000;
-  // sprintfUint8(buffer + 1, light / 100, 2, '0');
-  // sprintfUint8(buffer + 3, light % 100, 2, '0');
-  // printStrAt(7, 5, buffer);
+  uint16_t light = LightGetIntensity();
+  sprintfUint8(buffer + 0, light / 10000, 1); light %= 10000;
+  sprintfUint8(buffer + 1, light / 100, 2, '0');
+  sprintfUint8(buffer + 3, light % 100, 2, '0');
+  printStrAt(7, 5, buffer);
 
   delay(10000);
   DisplayClear();
@@ -752,8 +752,8 @@ void setup()
 
 //-----------------------------------------------------------------------------
 
-uint8_t oldDigits[4] = {0xff,};
-uint8_t digits[4] = {0,};
+uint8_t oldDigits[4] = {0xff, 0xff, 0xff, 0xff};
+uint8_t digits[4] = {0, 0, 0, 0};
 bool dots = true;
 
 enum State {
