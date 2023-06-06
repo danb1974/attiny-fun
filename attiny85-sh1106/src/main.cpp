@@ -480,8 +480,10 @@ uint8_t doubleDigitToUint8(const char *p)
 
   for (uint8_t i = 0; i < 2; i++) {
     number *= 10;
-    if ('0' <= *p && *p <= '9')
-      number += *p++ - '0';
+    if ('1' <= *p && *p <= '9') {
+      number += *p - '0';
+    }
+    p++;
   }
 
   return number;
