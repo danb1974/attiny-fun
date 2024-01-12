@@ -703,6 +703,7 @@ void setup()
   Wire.begin();
   fastBlink();
   
+  //RtcAdjust(compilerStampToDateTime(__DATE__, __TIME__));
   if (!RtcIsRunning()) {
     RtcAdjust(compilerStampToDateTime(__DATE__, __TIME__));
     slowBlink();
@@ -724,32 +725,35 @@ void setup()
 
   // before being "just as clock" show things
   char buffer[17];
+  if (true) {
+    // long version, almost out of memory
 
-  printStrAt(2, 2, "Hello family");
+    printStrAt(2, 2, "Hello world!");
+    
+    DateTime now = RtcNow();
+    // time
+    sprintfUint8(buffer + 0, now.hour, 2, ' ');
+    buffer[2] = ':';
+    sprintfUint8(buffer + 3, now.minute, 2, '0');
+    printStrAt(4, 5, buffer);
+    // date
+    sprintfUint8(buffer + 0, now.day, 2, ' ');
+    buffer[2] = '.';
+    sprintfUint8(buffer + 3, now.month, 2, '0');
+    buffer[5] = '.';
+    sprintfUint8(buffer + 6, now.year / 100, 2, '0');
+    sprintfUint8(buffer + 8, now.year % 100, 2, '0');
+    printStrAt(5, 3, buffer);
 
-  DateTime now = RtcNow();
-  // time
-  sprintfUint8(buffer + 0, now.hour, 2, ' ');
-  buffer[2] = ':';
-  sprintfUint8(buffer + 3, now.minute, 2, '0');
-  printStrAt(4, 5, buffer);
-  // date
-  sprintfUint8(buffer + 0, now.day, 2, ' ');
-  buffer[2] = '.';
-  sprintfUint8(buffer + 3, now.month, 2, '0');
-  buffer[5] = '.';
-  sprintfUint8(buffer + 6, now.year / 100, 2, '0');
-  sprintfUint8(buffer + 8, now.year % 100, 2, '0');
-  printStrAt(5, 3, buffer);
+    uint16_t light = LightGetIntensity();
+    sprintfUint8(buffer + 0, light / 10000, 1); light %= 10000;
+    sprintfUint8(buffer + 1, light / 100, 2, '0');
+    sprintfUint8(buffer + 3, light % 100, 2, '0');
+    printStrAt(7, 5, buffer);
 
-  uint16_t light = LightGetIntensity();
-  sprintfUint8(buffer + 0, light / 10000, 1); light %= 10000;
-  sprintfUint8(buffer + 1, light / 100, 2, '0');
-  sprintfUint8(buffer + 3, light % 100, 2, '0');
-  printStrAt(7, 5, buffer);
-
-  delay(10000);
-  DisplayClear();
+    delay(3000);
+    DisplayClear();
+  }
 }
 
 //-----------------------------------------------------------------------------
