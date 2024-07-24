@@ -704,25 +704,28 @@ void setup()
   Wire.begin();
   fastBlink();
   
+  // Trick of the day to just recompile and reflash when time is wrong:
+  // - store compiler date/time in eeprom
+  // - on start if no match, update rtc and eeprom, ensuring on next start nothing happens
+
   // format: __DATE__ = "Jan 01 2023", __TIME__ = "12:34:56"
-  char compilerDate[16];
-  char compilerTime[16];
+  #define DATE_TIME_BUFFER_SIZE 16
+  char compilerDate[DATE_TIME_BUFFER_SIZE];
+  char compilerTime[DATE_TIME_BUFFER_SIZE];
   memset(compilerDate, 0, sizeof(compilerDate));
   memset(compilerTime, 0, sizeof(compilerTime));
   strcpy(compilerDate, __DATE__);
   strcpy(compilerTime, __TIME__);
 
-  char storedDate[16];
-  char storedTime[16];
-  //memset(storedDate, 0, sizeof(storedDate));
-  //memset(storedTime, 0, sizeof(storedTime));
+  char storedDate[DATE_TIME_BUFFER_SIZE];
+  char storedTime[DATE_TIME_BUFFER_SIZE];
   eeprom_read_block(storedDate, (void *)0, sizeof(storedDate));
-  eeprom_read_block(storedTime, (void *)16, sizeof(storedTime));
+  eeprom_read_block(storedTime, (void *)DATE_TIME_BUFFER_SIZE, sizeof(storedTime));
 
   if (!RtcIsRunning() || strcmp(storedDate, compilerDate) || strcmp(storedTime, compilerTime)) {
     RtcAdjust(compilerStampToDateTime(compilerDate, compilerTime));
     eeprom_write_block(compilerDate, (void *)0, sizeof(compilerDate));
-    eeprom_write_block(compilerTime, (void *)16, sizeof(compilerTime));
+    eeprom_write_block(compilerTime, (void *)DATE_TIME_BUFFER_SIZE, sizeof(compilerTime));
     slowBlink();
   }
 
