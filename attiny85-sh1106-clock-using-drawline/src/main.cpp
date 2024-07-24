@@ -16,6 +16,7 @@
 
 #include <Arduino.h>
 #include <Wire.h>
+#include <EEPROM.h>
 
 // do not set MINLUX to 0 !!!
 
@@ -703,9 +704,25 @@ void setup()
   Wire.begin();
   fastBlink();
   
-  //RtcAdjust(compilerStampToDateTime(__DATE__, __TIME__));
-  if (!RtcIsRunning()) {
-    RtcAdjust(compilerStampToDateTime(__DATE__, __TIME__));
+  // format: __DATE__ = "Jan 01 2023", __TIME__ = "12:34:56"
+  char compilerDate[16];
+  char compilerTime[16];
+  memset(compilerDate, 0, sizeof(compilerDate));
+  memset(compilerTime, 0, sizeof(compilerTime));
+  strcpy(compilerDate, __DATE__);
+  strcpy(compilerTime, __TIME__);
+
+  char storedDate[16];
+  char storedTime[16];
+  //memset(storedDate, 0, sizeof(storedDate));
+  //memset(storedTime, 0, sizeof(storedTime));
+  eeprom_read_block(storedDate, (void *)0, sizeof(storedDate));
+  eeprom_read_block(storedTime, (void *)16, sizeof(storedTime));
+
+  if (!RtcIsRunning() || strcmp(storedDate, compilerDate) || strcmp(storedTime, compilerTime)) {
+    RtcAdjust(compilerStampToDateTime(compilerDate, compilerTime));
+    eeprom_write_block(compilerDate, (void *)0, sizeof(compilerDate));
+    eeprom_write_block(compilerTime, (void *)16, sizeof(compilerTime));
     slowBlink();
   }
 
@@ -725,8 +742,8 @@ void setup()
 
   // before being "just as clock" show things
   char buffer[17];
-  if (true) {
-    // long version, almost out of memory
+  if (false) {
+    // long version, (almost) out of memory
 
     printStrAt(2, 2, "Hello world!");
     
