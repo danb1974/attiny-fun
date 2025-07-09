@@ -1,36 +1,43 @@
 #define NO_CLOCK_CORRECTION 1
 #include <FastLED.h>
 
-#define LED_PIN     0
-#define NUM_LEDS    16
+#define LED_PIN     0U
+#define LED_COUNT   16U
 
-CRGB leds[NUM_LEDS];
+static CRGB ledStrip[LED_COUNT];
 
-void rainbow() {
-  for(int i = 0; i < NUM_LEDS; i++) {
-    leds[i] = CHSV(i * 10, 255, 255);
+void rainbow(uint8_t hueOffset) {
+  for(uint8_t ledIdx = 0; ledIdx < LED_COUNT; ledIdx++) {
+    uint8_t hue = static_cast<uint8_t>(hueOffset + ledIdx * 10);
+    ledStrip[ledIdx] = CHSV(hue, 255, 255);
   }
+
   FastLED.show();
 }
 
-void setup() {
-  FastLED.addLeds<WS2812, LED_PIN, GRB>(leds, NUM_LEDS);
-  FastLED.setBrightness(10);
+void digitalRGB(uint8_t rgbBits) {
+    uint8_t r = rgbBits & 0x01 ? 255 : 0;
+    uint8_t g = rgbBits & 0x02 ? 255 : 0;
+    uint8_t b = rgbBits & 0x04 ? 255 : 0;
 
-  rainbow();
-  delay(1000);
+    for (uint8_t ledIdx = 0; ledIdx < LED_COUNT; ledIdx++) {
+      ledStrip[ledIdx] = CRGB(r, g, b);
+    }
+
+    FastLED.show();
+}
+
+void setup() {
+  // declare leds
+  FastLED.addLeds<WS2812, LED_PIN, GRB>(ledStrip, LED_COUNT);
+
+  // configure leds
+  FastLED.setBrightness(10);
 }
 
 void loop() {
-  for (uint8_t i = 1; i <= 7; i++) {
-    for (uint8_t led = 0; led < NUM_LEDS; led++) {
-      uint8_t r = i & 0x01 ? 255 : 0;
-      uint8_t g = i & 0x02 ? 255 : 0;
-      uint8_t b = i & 0x04 ? 255 : 0;
-      leds[led] = CRGB(r, g, b);
-    }
-    FastLED.show();
-
-    delay(1000);
+  for (uint8_t i = 0; i <= 255; i++) {
+    rainbow(i);
+    delay(10);
   }
 }
