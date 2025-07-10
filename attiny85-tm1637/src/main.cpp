@@ -49,7 +49,9 @@ void loop() {
       display.encodeDigit(seconds % 10)
     };
 
-    data[1] |= (seconds & 0x01) << 7; // Turn on colon by setting bit 7
+    // Turn on colon by setting bit 7
+    // We toggle it every second
+    data[1] |= (seconds & 0x01) << 7;
 
     display.setSegments(data, 4U, 0U);
 
@@ -57,11 +59,11 @@ void loop() {
       seconds--;
     } else {
       minutes--;
-      seconds = 0;
+      seconds = 59;
     }
-
-    delay(1000);
   } else {
     clearDisplay();
   }
+
+  delay(1000);
 }
