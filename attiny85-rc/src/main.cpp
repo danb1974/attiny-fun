@@ -1,41 +1,66 @@
 #include <Arduino.h>
 
-#define PIN_LED PIN0
-#define PIN_RC PIN2
+#define PIN_INT_LED PIN1
+#define PIN_RC      PIN2
 
-volatile uint32_t lastPulseStart = 0;
-volatile uint32_t lastPulseWidth = 0;
+static volatile uint32_t lastPulseStartUs = 0U;
+static volatile uint32_t lastPulseWidthUs = 0U;
 
 void rcInterrupt() {
-    uint8_t pinValue = digitalRead(PIN_RC);
     uint32_t now = micros();
+
+    uint8_t pinValue = digitalRead(PIN_RC);
 
     if (pinValue == 1) {
         // raising
-        lastPulseStart = now;
+        lastPulseStartUs = now;
         return;
     }
 
     // falling
-    if (lastPulseStart == 0) {
+    if (lastPulseStartUs == 0U) {
         return;
     }
 
-    uint32_t pulseWidth = now - lastPulseStart;
-    if (pulseWidth < 1000 || pulseWidth > 2000) {
+    uint32_t pulseWidth = now - lastPulseStartUs;
+    if (pulseWidth < 1000U || pulseWidth > 2000U) {
         // invalid
-        pulseWidth = 0;
+        pulseWidth = 0U;
     }
 
-    lastPulseWidth = pulseWidth;
+    lastPulseWidthUs = pulseWidth;
 }
 
 void setup() {
-    pinMode(PIN_LED, OUTPUT);
-    digitalWrite(PIN_LED, 0);
+    pinMode(PIN_INT_LED, OUTPUT);
+    digitalWrite(PIN_INT_LED, 0);
 
     pinMode(PIN_RC, INPUT);
     attachInterrupt(0, rcInterrupt, CHANGE);
 }
 
-void loop() {}
+void loop() {
+    int8_t switchPos = 0;
+    static uint8_t cycle = 0;
+
+    cycle++;
+
+    if (lastPulseWidthUs >= 1000U && lastPulseWidthUs <= 2000U) {
+        if (lastPulseWidthUs < 1250U) {
+            switchPos = -1;
+        }
+        if (lastPulseWidthUs > 1750U) {
+            switchPos = 1;
+        }
+
+        if (switchPos == -1) {
+            digitalWrite(PIN_INT_LED, cycle & 0x01);
+        } else if (switchPos == 1) {
+            digitalWrite(PIN_INT_LED, 1);
+        } else {
+            digitalWrite(PIN_INT_LED, 0);
+        }
+    }
+
+    delay(500);
+}
