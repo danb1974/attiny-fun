@@ -41,7 +41,7 @@ void loop() {
   static uint8_t minutes = 9;
   static uint8_t seconds = 59;
 
-  if (minutes > 0 && seconds > 0) {
+  if (minutes > 0 || seconds > 0) {
     uint8_t data[] = {
       display.encodeDigit(minutes / 10),
       display.encodeDigit(minutes % 10),  
