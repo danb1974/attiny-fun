@@ -64,7 +64,7 @@ void setup() {
   FastLED.setBrightness(10);
 }
 
-#define MODEL 1
+#define MODEL 3
 
 void loop() {
   switch (MODEL) {
