@@ -3,6 +3,7 @@
 
 #define LED_PIN     0U
 #define LED_COUNT   16U
+#define INT_LED     9U
 
 static CRGB ledStrip[LED_COUNT];
 
@@ -62,6 +63,10 @@ void setup() {
 
   // configure leds
   FastLED.setBrightness(10);
+
+  // signal end of setup
+  pinMode(INT_LED, OUTPUT);
+  digitalWrite(INT_LED, 1);
 }
 
 #define MODEL 3
